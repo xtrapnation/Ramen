@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Reviews with Trepas — Exotic Fruit Reviews</title>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0e0b07; --surface: #18130d; --card: #1f1710; --border: #2e2218;
+    --gold: #f0a500; --gold-dim: #7a5200; --red: #d44000; --cream: #f5ead8; --muted: #8a7560;
+    --font-display: 'Bebas Neue', sans-serif; --font-accent: 'Black Han Sans', sans-serif; --font-body: 'DM Sans', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--cream); font-family: var(--font-body); min-height: 100vh; overflow-x: hidden; }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: 0.4;
+  }
+  header { position: relative; text-align: center; padding: 60px 20px 40px; border-bottom: 1px solid var(--border); overflow: hidden; }
+  header::after { content: ''; position: absolute; bottom: -1px; left: 50%; transform: translateX(-50%); width: 200px; height: 2px; background: var(--gold); }
+  h1 { font-family: var(--font-display); font-size: clamp(48px, 10vw, 110px); line-height: 0.9; letter-spacing: 4px; color: var(--cream); text-shadow: 0 0 60px rgba(240,165,0,0.15); }
+  h1 span { color: var(--gold); }
+  nav { display: flex; justify-content: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(14,11,7,0.95); backdrop-filter: blur(12px); z-index: 100; }
+  nav button { font-family: var(--font-display); font-size: 18px; letter-spacing: 2px; padding: 16px 36px; background: none; border: none; color: var(--muted); cursor: pointer; position: relative; transition: color 0.2s; }
+  nav button::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--gold); transform: scaleX(0); transition: transform 0.2s; }
+  nav button.active { color: var(--gold); }
+  nav button.active::after { transform: scaleX(1); }
+  nav button:hover { color: var(--cream); }
+  main { max-width: 1100px; margin: 0 auto; padding: 50px 20px 100px; position: relative; z-index: 1; }
+  .view { display: none; }
+  .view.active { display: block; }
+  .section-title { font-family: var(--font-display); font-size: 42px; letter-spacing: 3px; margin-bottom: 30px; color: var(--cream); }
+  .section-title span { color: var(--gold); }
+  #leaderboard-list { display: flex; flex-direction: column; gap: 4px; }
+  .lb-row { display: grid; grid-template-columns: 48px 1fr auto auto auto; align-items: center; gap: 16px; padding: 14px 20px; background: var(--card); border: 1px solid var(--border); border-radius: 4px; transition: background 0.15s; animation: fadeUp 0.4s ease both; }
+  .lb-row:hover { background: #261e14; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+  .lb-rank { font-family: var(--font-display); font-size: 26px; color: var(--gold-dim); text-align: center; }
+  .lb-row:nth-child(1) .lb-rank { color: var(--gold); font-size: 30px; }
+  .lb-row:nth-child(2) .lb-rank { color: #c0c0c0; font-size: 28px; }
+  .lb-row:nth-child(3) .lb-rank { color: #cd7f32; }
+  .lb-name { font-size: 15px; font-weight: 500; color: var(--cream); }
+  .lb-date { font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .lb-score { font-family: var(--font-display); font-size: 28px; color: var(--gold); min-width: 70px; text-align: right; }
+  .lb-jump { font-family: var(--font-body); font-size: 11px; letter-spacing: 1px; padding: 5px 12px; background: none; border: 1px solid var(--gold-dim); color: var(--gold-dim); border-radius: 3px; cursor: pointer; text-transform: uppercase; white-space: nowrap; transition: all 0.15s; }
+  .lb-jump:hover { border-color: var(--gold); color: var(--gold); background: rgba(240,165,0,0.07); }
+  #reviews-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 28px; }
+  .review-card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; animation: fadeUp 0.5s ease both; transition: transform 0.2s, box-shadow 0.2s; }
+  .review-card:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(0,0,0,0.5); }
+  .card-images { display: flex; position: relative; overflow: hidden; border-radius: 6px 6px 0 0; }
+  .card-images:not(.single) { aspect-ratio: 2 / 1; }
+  .card-images.single { aspect-ratio: 1 / 1; }
+  .card-img-wrap { flex: 1; overflow: hidden; position: relative; }
+  .card-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.4s ease; will-change: transform; }
+  .card-img-wrap:hover img { transform: scale(1.06); }
+  .card-images-divider { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: var(--bg); z-index: 2; pointer-events: none; }
+  .card-images.single .card-img-wrap { flex: none; width: 100%; }
+  .card-images.single .card-images-divider { display: none; }
+  .img-placeholder { width: 100%; height: 100%; background: #2a1f12; display: flex; align-items: center; justify-content: center; color: var(--gold-dim); font-size: 32px; }
+  .card-body { padding: 18px 20px 20px; }
+  .card-meta { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+  .card-name { font-family: var(--font-display); font-size: 22px; letter-spacing: 1px; color: var(--cream); line-height: 1.1; flex: 1; padding-right: 12px; }
+  .card-score { font-family: var(--font-display); font-size: 36px; color: var(--gold); white-space: nowrap; line-height: 1; }
+  .card-score .denom { font-size: 16px; color: var(--gold-dim); }
+  .card-date { font-size: 11px; color: var(--muted); letter-spacing: 1px; margin-bottom: 10px; }
+  .card-review { font-size: 13.5px; color: #c9b89a; line-height: 1.6; font-weight: 300; }
+  .card-stars { display: flex; gap: 3px; margin-top: 12px; }
+  .star { width: 14px; height: 14px; border-radius: 2px; background: var(--gold-dim); position: relative; overflow: hidden; }
+  .star-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--gold); }
+  #admin-login-area { max-width: 400px; margin: 60px auto; text-align: center; }
+  #admin-login-area h2 { font-family: var(--font-display); font-size: 36px; margin-bottom: 8px; color: var(--gold); }
+  #admin-login-area p { color: var(--muted); margin-bottom: 28px; font-size: 13px; }
+  .google-btn { display: inline-flex; align-items: center; gap: 12px; background: #fff; color: #333; border: none; border-radius: 4px; padding: 12px 24px; font-family: var(--font-body); font-size: 15px; font-weight: 500; cursor: pointer; transition: box-shadow 0.2s; }
+  .google-btn:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
+  .google-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
+  #admin-user-bar { display: none; align-items: center; gap: 12px; margin-bottom: 28px; padding: 12px 16px; background: var(--card); border: 1px solid var(--border); border-radius: 4px; }
+  #admin-user-bar.visible { display: flex; }
+  #admin-user-avatar { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--gold-dim); }
+  #admin-user-name { font-size: 14px; color: var(--cream); flex: 1; }
+  .signout-btn { background: none; border: 1px solid var(--border); color: var(--muted); border-radius: 3px; padding: 4px 10px; cursor: pointer; font-size: 12px; font-family: var(--font-body); transition: all 0.15s; }
+  .signout-btn:hover { border-color: var(--red); color: #ff6060; }
+  .admin-form { max-width: 600px; margin: 0 auto; display: none; }
+  .admin-form.visible { display: block; }
+  .admin-form > h2 { font-family: var(--font-display); font-size: 36px; color: var(--gold); margin-bottom: 8px; }
+  .admin-form > p { color: var(--muted); margin-bottom: 28px; font-size: 13px; }
+  .form-group { margin-bottom: 20px; }
+  label { display: block; font-size: 11px; letter-spacing: 2px; color: var(--gold); text-transform: uppercase; margin-bottom: 8px; }
+  input[type="text"], input[type="number"], input[type="password"], input[type="date"], textarea {
+    width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 12px 16px; color: var(--cream); font-family: var(--font-body); font-size: 14px; outline: none; transition: border-color 0.2s;
+  }
+  input:focus, textarea:focus { border-color: var(--gold); }
+  textarea { resize: vertical; min-height: 100px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .img-upload-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .img-upload-box { background: var(--card); border: 1px dashed var(--border); border-radius: 4px; padding: 20px; text-align: center; cursor: pointer; transition: border-color 0.2s; position: relative; overflow: hidden; }
+  .img-upload-box:hover { border-color: var(--gold-dim); }
+  .img-upload-box input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+  .img-upload-box .preview { width: 100%; height: 120px; object-fit: cover; border-radius: 2px; display: none; }
+  .img-upload-box .placeholder { color: var(--muted); font-size: 12px; }
+  .img-upload-box .placeholder span { font-size: 28px; display: block; margin-bottom: 8px; color: var(--gold-dim); }
+  .img-pos-controls { margin-top: 10px; display: none; }
+  .img-pos-controls.visible { display: block; }
+  .img-pos-controls label { font-size: 10px; letter-spacing: 1px; margin-bottom: 4px; }
+  .pos-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+  .pos-row span { font-size: 11px; color: var(--muted); min-width: 22px; }
+  input[type="range"] { flex: 1; accent-color: var(--gold); cursor: pointer; background: transparent; }
+  .btn { font-family: var(--font-display); font-size: 20px; letter-spacing: 2px; padding: 14px 32px; border: none; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+  .btn-primary { background: var(--gold); color: #0e0b07; width: 100%; }
+  .btn-primary:hover { background: #ffc233; }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .rating-input-wrap { display: flex; align-items: center; gap: 12px; }
+  .rating-input-wrap input { flex: 1; }
+  .rating-preview { font-family: var(--font-display); font-size: 32px; color: var(--gold); min-width: 70px; text-align: right; }
+  .admin-existing { margin-top: 50px; }
+  .admin-existing h3 { font-family: var(--font-display); font-size: 26px; color: var(--muted); margin-bottom: 16px; }
+  .admin-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background: var(--card); border: 1px solid var(--border); border-radius: 4px; margin-bottom: 6px; gap: 12px; }
+  .admin-item-name { font-size: 14px; color: var(--cream); flex: 1; }
+  .admin-item-score { font-family: var(--font-display); font-size: 22px; color: var(--gold); white-space: nowrap; }
+  .admin-item-edit { background: none; border: 1px solid var(--gold-dim); color: var(--gold-dim); border-radius: 3px; padding: 4px 10px; cursor: pointer; font-size: 12px; font-family: var(--font-body); transition: all 0.15s; }
+  .admin-item-edit:hover { background: rgba(240,165,0,0.1); color: var(--gold); border-color: var(--gold); }
+  .admin-item-del { background: none; border: 1px solid #3a2020; color: #a04040; border-radius: 3px; padding: 4px 10px; cursor: pointer; font-size: 12px; font-family: var(--font-body); transition: all 0.15s; }
+  .admin-item-del:hover { background: #3a2020; color: #ff8080; }
+  .upload-progress { display: none; margin-top: 8px; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .upload-progress.visible { display: block; }
+  .upload-progress-bar { height: 100%; background: var(--gold); width: 0%; transition: width 0.2s; }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 500; display: none; align-items: flex-start; justify-content: center; padding: 40px 20px; overflow-y: auto; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: #1a1409; border: 1px solid var(--border); border-radius: 6px; padding: 32px; width: 100%; max-width: 640px; position: relative; animation: fadeUp 0.25s ease; }
+  .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--muted); font-size: 22px; cursor: pointer; line-height: 1; }
+  .modal-close:hover { color: var(--cream); }
+  .modal h2 { font-family: var(--font-display); font-size: 30px; color: var(--gold); margin-bottom: 6px; }
+  .modal > p { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
+  .save-popup { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+  .save-popup.show { opacity: 1; pointer-events: auto; }
+  .save-popup-inner { background: var(--card); border: 2px solid var(--gold); border-radius: 10px; padding: 44px 56px; text-align: center; transform: scale(0.9); transition: transform 0.25s; }
+  .save-popup.show .save-popup-inner { transform: scale(1); }
+  .save-popup-icon { font-size: 52px; margin-bottom: 12px; }
+  .save-popup-title { font-family: var(--font-display); font-size: 40px; letter-spacing: 3px; color: var(--gold); margin-bottom: 6px; }
+  .save-popup-sub { font-size: 14px; color: var(--muted); }
+  .sort-row { display: flex; gap: 10px; align-items: center; margin-bottom: 24px; flex-wrap: wrap; }
+  .sort-label { font-size: 12px; color: var(--muted); letter-spacing: 1px; }
+  .sort-btn { font-family: var(--font-body); font-size: 12px; letter-spacing: 1px; padding: 6px 14px; background: var(--card); border: 1px solid var(--border); border-radius: 3px; color: var(--muted); cursor: pointer; transition: all 0.15s; text-transform: uppercase; }
+  .sort-btn.active, .sort-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
+  .empty-state { text-align: center; padding: 80px 20px; color: var(--muted); }
+  .empty-state .big { font-size: 64px; margin-bottom: 16px; }
+  .empty-state p { font-size: 14px; }
+  .loading-state { text-align: center; padding: 80px 20px; color: var(--muted); }
+  .loading-spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (max-width: 600px) {
+    .form-row, .img-upload-row { grid-template-columns: 1fr; }
+    #reviews-grid { grid-template-columns: 1fr; }
+    nav button { padding: 14px 18px; font-size: 15px; }
+    .lb-row { grid-template-columns: 40px 1fr auto; }
+    .lb-date, .lb-jump { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>REVIEWS<br/><span>WITH TREPAS</span></h1>
+</header>
+
+<nav>
+  <button class="active" onclick="switchView('reviews', this)">Reviews</button>
+  <button onclick="switchView('leaderboard', this)">Leaderboard</button>
+  <button onclick="switchView('admin', this)">Admin</button>
+</nav>
+<div style="text-align:center;padding:10px;background:var(--surface);border-bottom:1px solid var(--border);font-family:var(--font-body);font-size:13px;">
+  <span style="color:var(--muted);">Also check out: </span>
+  <a href="reviews-with-trepas.html" style="color:var(--gold);text-decoration:none;letter-spacing:1px;font-weight:500;">🍜 Instant Noodle Reviews →</a>
+</div>
+
+<main>
+  <div class="view active" id="view-reviews">
+    <div class="sort-row">
+      <span class="sort-label">Sort:</span>
+      <button class="sort-btn active" onclick="sortReviews('date', this)">Newest</button>
+      <button class="sort-btn" onclick="sortReviews('score-desc', this)">Highest Rated</button>
+      <button class="sort-btn" onclick="sortReviews('score-asc', this)">Lowest Rated</button>
+      <button class="sort-btn" onclick="sortReviews('name', this)">A–Z</button>
+    </div>
+    <div id="reviews-grid">
+      <div class="loading-state"><div class="loading-spinner"></div><p>Loading reviews…</p></div>
+    </div>
+  </div>
+
+  <div class="view" id="view-leaderboard">
+    <div class="section-title">THE <span>RANKINGS</span></div>
+    <div id="leaderboard-list"></div>
+  </div>
+
+  <div class="view" id="view-admin">
+    <div id="admin-login-area">
+      <h2>ADMIN ACCESS</h2>
+      <p>Enter the admin password to manage reviews</p>
+      <div style="display:flex;gap:10px;max-width:320px;margin:0 auto;">
+        <input type="password" id="admin-pw-input" placeholder="Password" style="flex:1;" onkeydown="if(event.key==='Enter')checkPassword()" />
+        <button class="btn btn-primary" style="width:auto;padding:12px 24px;font-size:16px;" onclick="checkPassword()">ENTER</button>
+      </div>
+      <div id="pw-error" style="color:#ff6060;font-size:13px;margin-top:12px;display:none;">Incorrect password</div>
+    </div>
+
+    <div id="admin-user-bar">
+      <span style="font-size:20px;">🍜</span>
+      <span id="admin-user-name" style="flex:1;">Admin</span>
+      <button class="signout-btn" onclick="signOut()">Sign out</button>
+    </div>
+
+    <div class="admin-form" id="admin-panel">
+      <h2>ADD REVIEW</h2>
+      <p>New fruit review saved to Firebase and visible to everyone instantly</p>
+      <div class="form-group">
+        <label>Noodle Name</label>
+        <input type="text" id="f-name" placeholder="e.g. Dragon Fruit" />
+      </div>
+      <div class="form-group">
+        <label>Photos (upload one or both)</label>
+        <div class="img-upload-row">
+          <div>
+            <div class="img-upload-box">
+              <input type="file" id="f-img1" accept="image/*" onchange="previewImg(this,'prev1','ph1','pos1')" />
+              <img id="prev1" class="preview" />
+              <div class="placeholder" id="ph1"><span>🍑</span>Whole fruit photo</div>
+            </div>
+            <div class="img-pos-controls" id="pos1">
+              <label>Image position</label>
+              <div class="pos-row"><span>↔</span><input type="range" id="f-ox1" min="0" max="100" value="50" oninput="updatePosPreview('prev1','f-ox1','f-oy1')"/></div>
+              <div class="pos-row"><span>↕</span><input type="range" id="f-oy1" min="0" max="100" value="50" oninput="updatePosPreview('prev1','f-ox1','f-oy1')"/></div>
+            </div>
+          </div>
+          <div>
+            <div class="img-upload-box">
+              <input type="file" id="f-img2" accept="image/*" onchange="previewImg(this,'prev2','ph2','pos2')" />
+              <img id="prev2" class="preview" />
+              <div class="placeholder" id="ph2"><span>🔪</span>Cut/inside photo</div>
+            </div>
+            <div class="img-pos-controls" id="pos2">
+              <label>Image position</label>
+              <div class="pos-row"><span>↔</span><input type="range" id="f-ox2" min="0" max="100" value="50" oninput="updatePosPreview('prev2','f-ox2','f-oy2')"/></div>
+              <div class="pos-row"><span>↕</span><input type="range" id="f-oy2" min="0" max="100" value="50" oninput="updatePosPreview('prev2','f-ox2','f-oy2')"/></div>
+            </div>
+          </div>
+        </div>
+        <div class="upload-progress" id="upload-progress-add"><div class="upload-progress-bar" id="upload-progress-bar-add"></div></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Rating (out of 10)</label>
+          <div class="rating-input-wrap">
+            <input type="number" id="f-rating" min="0" max="10" step="0.5" placeholder="7.5" oninput="updateRatingPreview()" />
+            <div class="rating-preview" id="rating-preview">—</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Date Tried</label>
+          <input type="date" id="f-date" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Review</label>
+        <textarea id="f-review" placeholder="Thoughts on flavor, texture, sweetness..."></textarea>
+      </div>
+      <button class="btn btn-primary" id="submit-btn" onclick="submitReview()">ADD TO THE BOARD</button>
+      <div class="admin-existing">
+        <h3>MANAGE EXISTING</h3>
+        <div id="admin-existing-list"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeEditModal()">✕</button>
+    <h2>EDIT REVIEW</h2>
+    <p>Update any fields — blank photo fields keep the current photo</p>
+    <input type="hidden" id="e-id" />
+    <div class="form-group">
+      <label>Noodle Name</label>
+      <input type="text" id="e-name" />
+    </div>
+    <div class="form-group">
+      <label>Photos (leave blank to keep existing)</label>
+      <div class="img-upload-row">
+        <div>
+          <div class="img-upload-box">
+            <input type="file" id="e-img1" accept="image/*" onchange="previewImg(this,'ep1','eph1','epos1')" />
+            <img id="ep1" class="preview" />
+            <div class="placeholder" id="eph1"><span>🍑</span>Replace photo 1</div>
+          </div>
+          <div class="img-pos-controls" id="epos1">
+            <label>Position</label>
+            <div class="pos-row"><span>↔</span><input type="range" id="e-ox1" min="0" max="100" value="50" oninput="updatePosPreview('ep1','e-ox1','e-oy1')"/></div>
+            <div class="pos-row"><span>↕</span><input type="range" id="e-oy1" min="0" max="100" value="50" oninput="updatePosPreview('ep1','e-ox1','e-oy1')"/></div>
+          </div>
+        </div>
+        <div>
+          <div class="img-upload-box">
+            <input type="file" id="e-img2" accept="image/*" onchange="previewImg(this,'ep2','eph2','epos2')" />
+            <img id="ep2" class="preview" />
+            <div class="placeholder" id="eph2"><span>🔪</span>Replace photo 2</div>
+          </div>
+          <div class="img-pos-controls" id="epos2">
+            <label>Position</label>
+            <div class="pos-row"><span>↔</span><input type="range" id="e-ox2" min="0" max="100" value="50" oninput="updatePosPreview('ep2','e-ox2','e-oy2')"/></div>
+            <div class="pos-row"><span>↕</span><input type="range" id="e-oy2" min="0" max="100" value="50" oninput="updatePosPreview('ep2','e-ox2','e-oy2')"/></div>
+          </div>
+        </div>
+      </div>
+      <div class="upload-progress" id="upload-progress-edit"><div class="upload-progress-bar" id="upload-progress-bar-edit"></div></div>
+      <div style="margin-top:10px;" id="existing-pos-wrap"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Rating (out of 10)</label>
+        <div class="rating-input-wrap">
+          <input type="number" id="e-rating" min="0" max="10" step="0.5" oninput="updateEditRatingPreview()" />
+          <div class="rating-preview" id="e-rating-preview">—</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Date Tried</label>
+        <input type="date" id="e-date" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Review</label>
+      <textarea id="e-review"></textarea>
+    </div>
+    <button class="btn btn-primary" id="edit-save-btn" onclick="saveEdit()">SAVE CHANGES</button>
+  </div>
+</div>
+
+<div class="save-popup" id="save-popup">
+  <div class="save-popup-inner">
+    <div class="save-popup-icon" id="save-popup-icon">✅</div>
+    <div class="save-popup-title" id="save-popup-title">SAVED!</div>
+    <div class="save-popup-sub" id="save-popup-sub">Your review has been saved.</div>
+  </div>
+</div>
+
+
+<script>
+// ══════════════════════════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════════════════════════
+const FIREBASE_PROJECT  = 'trepo-reviews';
+const CLOUDINARY_CLOUD  = 'dzqo8c9aj';
+const CLOUDINARY_PRESET = 'mwv7ms1y';
+
+const FS_BASE = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT}/databases/(default)/documents`;
+const COLLECTION = 'fruits';
+
+// ══════════════════════════════════════════════════════════
+//  AUTH — simple password gate
+// ══════════════════════════════════════════════════════════
+const ADMIN_PASSWORD = 'noodles2025'; // change this to whatever you want
+let idToken   = true; // kept for compatibility — always true when logged in
+let adminUser = null;
+
+function checkPassword() {
+  const pw = document.getElementById('admin-pw-input').value;
+  if (pw === ADMIN_PASSWORD) {
+    adminUser = { name: 'Admin' };
+    document.getElementById('admin-login-area').style.display = 'none';
+    document.getElementById('pw-error').style.display = 'none';
+    document.getElementById('admin-user-bar').classList.add('visible');
+    document.getElementById('admin-user-name').textContent = 'Admin';
+    document.getElementById('admin-panel').classList.add('visible');
+    document.getElementById('f-date').valueAsDate = new Date();
+    renderAdminList();
+  } else {
+    document.getElementById('pw-error').style.display = 'block';
+    document.getElementById('admin-pw-input').value = '';
+  }
+}
+
+function signOut() {
+  idToken = null; adminUser = null;
+  document.getElementById('admin-login-area').style.display = '';
+  document.getElementById('admin-user-bar').classList.remove('visible');
+  document.getElementById('admin-panel').classList.remove('visible');
+  document.getElementById('admin-pw-input').value = '';
+}
+
+// ══════════════════════════════════════════════════════════
+//  FIRESTORE REST
+// ══════════════════════════════════════════════════════════
+function toFS(obj) {
+  const fields = {};
+  for (const [k, v] of Object.entries(obj)) {
+    if (v === null || v === undefined) fields[k] = { nullValue: null };
+    else if (typeof v === 'number')    fields[k] = { doubleValue: v };
+    else                               fields[k] = { stringValue: String(v) };
+  }
+  return { fields };
+}
+
+function fromFS(doc) {
+  const obj = { _id: doc.name.split('/').pop() };
+  for (const [k, v] of Object.entries(doc.fields || {})) {
+    if      ('stringValue'  in v) obj[k] = v.stringValue;
+    else if ('doubleValue'  in v) obj[k] = v.doubleValue;
+    else if ('integerValue' in v) obj[k] = Number(v.integerValue);
+    else if ('booleanValue' in v) obj[k] = v.booleanValue;
+    else obj[k] = null;
+  }
+  return obj;
+}
+
+async function fsGetAll(collection) {
+  const res  = await fetch(`${FS_BASE}/${collection}?pageSize=300`);
+  if (!res.ok) return [];
+  const data = await res.json();
+  return (data.documents || []).map(fromFS);
+}
+
+async function fsSet(collection, docId, obj) {
+  const res = await fetch(`${FS_BASE}/${collection}/${docId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(toFS(obj)),
+  });
+  if (!res.ok) throw new Error(await res.text());
+}
+
+async function fsDelete(collection, docId) {
+  const res = await fetch(`${FS_BASE}/${collection}/${docId}`, {
+    method: 'DELETE',
+    headers: {},
+  });
+  if (!res.ok) throw new Error(await res.text());
+}
+
+// ══════════════════════════════════════════════════════════
+//  CLOUDINARY IMAGE UPLOAD
+// ══════════════════════════════════════════════════════════
+async function uploadImage(dataUrl, onProgress) {
+  const blob = await (await fetch(dataUrl)).blob();
+  const fd   = new FormData();
+  fd.append('file', blob);
+  fd.append('upload_preset', CLOUDINARY_PRESET);
+
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`);
+    xhr.upload.onprogress = e => { if (e.lengthComputable && onProgress) onProgress(e.loaded / e.total); };
+    xhr.onload = () => {
+      if (xhr.status === 200) {
+        resolve(JSON.parse(xhr.responseText).secure_url);
+      } else {
+        reject(new Error(xhr.responseText));
+      }
+    };
+    xhr.onerror = () => reject(new Error('Upload failed'));
+    xhr.send(fd);
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+//  APP STATE
+// ══════════════════════════════════════════════════════════
+let reviews     = [];
+let currentSort = 'date';
+
+async function loadReviews() {
+  reviews = await fsGetAll(COLLECTION);
+  reviews.forEach(r => {
+    r.rating = parseFloat(r.rating) || 0;
+    r.ox1 = parseFloat(r.ox1) || 50; r.oy1 = parseFloat(r.oy1) || 50;
+    r.ox2 = parseFloat(r.ox2) || 50; r.oy2 = parseFloat(r.oy2) || 50;
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+//  NAV
+// ══════════════════════════════════════════════════════════
+function switchView(name, btn) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  btn.classList.add('active');
+  if (name === 'reviews')     renderReviews();
+  if (name === 'leaderboard') renderLeaderboard();
+  if (name === 'admin')       renderAdminList();
+}
+
+// ══════════════════════════════════════════════════════════
+//  SORT
+// ══════════════════════════════════════════════════════════
+function sortedReviews(mode) {
+  const arr = [...reviews];
+  if (mode === 'date')       return arr.sort((a,b) => new Date(b.date) - new Date(a.date));
+  if (mode === 'score-desc') return arr.sort((a,b) => b.rating - a.rating);
+  if (mode === 'score-asc')  return arr.sort((a,b) => a.rating - b.rating);
+  if (mode === 'name')       return arr.sort((a,b) => a.name.localeCompare(b.name));
+  return arr;
+}
+function sortReviews(mode, btn) {
+  currentSort = mode;
+  document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderReviews();
+}
+
+// ══════════════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════════════
+function scoreColor(r) { return r >= 8 ? '#f0a500' : r >= 6 ? '#c8a060' : '#8a7560'; }
+function starsHTML(rating) {
+  let h = '<div class="card-stars">';
+  for (let i = 0; i < 10; i++) {
+    const f = Math.max(0, Math.min(1, rating - i));
+    h += `<div class="star"><div class="star-fill" style="width:${f*100}%"></div></div>`;
+  }
+  return h + '</div>';
+}
+function formatDate(d) {
+  if (!d) return '';
+  return new Date(d + 'T12:00:00').toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+}
+function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function setProgress(barId, wrapId, pct) {
+  document.getElementById(wrapId).classList.toggle('visible', pct > 0 && pct < 1);
+  document.getElementById(barId).style.width = (pct * 100) + '%';
+}
+
+// ══════════════════════════════════════════════════════════
+//  RENDER REVIEWS
+// ══════════════════════════════════════════════════════════
+function renderReviews() {
+  const grid = document.getElementById('reviews-grid');
+  const arr  = sortedReviews(currentSort);
+  if (!arr.length) {
+    grid.innerHTML = `<div class="empty-state"><div class="big">🍑</div><p>No reviews yet.</p></div>`;
+    return;
+  }
+  grid.innerHTML = arr.map((r, i) => `
+    <div class="review-card" id="card-${r._id}" style="animation-delay:${i*0.05}s">
+      ${buildImgAreaHTML(r)}
+      <div class="card-body">
+        <div class="card-date">${formatDate(r.date)}</div>
+        <div class="card-meta">
+          <div class="card-name">${r.name}</div>
+          <div class="card-score" style="color:${scoreColor(r.rating)}">${r.rating}<span class="denom">/10</span></div>
+        </div>
+        ${r.review ? `<div class="card-review">${r.review}</div>` : ''}
+        ${starsHTML(r.rating)}
+      </div>
+    </div>`).join('');
+}
+
+function buildImgAreaHTML(r) {
+  const h1 = !!r.img1url, h2 = !!r.img2url;
+  if (h1 && h2) return `<div class="card-images"><div class="card-img-wrap"><img src="${r.img1url}" alt="" loading="lazy" style="object-position:${r.ox1}% ${r.oy1}%" /></div><div class="card-img-wrap"><img src="${r.img2url}" alt="" loading="lazy" style="object-position:${r.ox2}% ${r.oy2}%" /></div><div class="card-images-divider"></div></div>`;
+  if (h1) return `<div class="card-images single"><div class="card-img-wrap"><img src="${r.img1url}" alt="" loading="lazy" style="object-position:${r.ox1}% ${r.oy1}%" /></div></div>`;
+  if (h2) return `<div class="card-images single"><div class="card-img-wrap"><img src="${r.img2url}" alt="" loading="lazy" style="object-position:${r.ox2}% ${r.oy2}%" /></div></div>`;
+  return `<div class="card-images"><div class="card-img-wrap"><div class="img-placeholder">🍑</div></div><div class="card-img-wrap"><div class="img-placeholder">🔪</div></div><div class="card-images-divider"></div></div>`;
+}
+
+// ══════════════════════════════════════════════════════════
+//  LEADERBOARD
+// ══════════════════════════════════════════════════════════
+function renderLeaderboard() {
+  const list   = document.getElementById('leaderboard-list');
+  const arr    = [...reviews].sort((a,b) => b.rating - a.rating);
+  const medals = ['🥇','🥈','🥉'];
+  list.innerHTML = arr.map((r, i) => `
+    <div class="lb-row" style="animation-delay:${i*0.04}s">
+      <div class="lb-rank">${medals[i] || (i+1)}</div>
+      <div class="lb-name">${r.name}</div>
+      <div class="lb-date">${formatDate(r.date)}</div>
+      <button class="lb-jump" onclick="jumpToReview('${r._id}')">↗ View</button>
+      <div class="lb-score">${r.rating}<span style="font-size:14px;color:var(--gold-dim)">/10</span></div>
+    </div>`).join('');
+}
+function jumpToReview(id) {
+  const btn = document.querySelector('nav button:first-child');
+  switchView('reviews', btn);
+  setTimeout(() => { const c = document.getElementById('card-'+id); if (c) c.scrollIntoView({behavior:'smooth',block:'center'}); }, 120);
+}
+
+// ══════════════════════════════════════════════════════════
+//  IMAGE PREVIEW HELPERS
+// ══════════════════════════════════════════════════════════
+function previewImg(input, previewId, phId, posId) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const prev = document.getElementById(previewId);
+    prev.src = e.target.result; prev.style.display = 'block';
+    document.getElementById(phId).style.display = 'none';
+    document.getElementById(posId)?.classList.add('visible');
+  };
+  reader.readAsDataURL(file);
+}
+function updatePosPreview(previewId, oxId, oyId) {
+  const img = document.getElementById(previewId);
+  if (img) img.style.objectPosition = `${document.getElementById(oxId).value}% ${document.getElementById(oyId).value}%`;
+}
+function updateRatingPreview() {
+  const v = document.getElementById('f-rating').value;
+  document.getElementById('rating-preview').textContent = v ? v+'/10' : '—';
+}
+function updateEditRatingPreview() {
+  const v = document.getElementById('e-rating').value;
+  document.getElementById('e-rating-preview').textContent = v ? v+'/10' : '—';
+}
+function getFileDataUrl(inputId) {
+  return new Promise(resolve => {
+    const file = document.getElementById(inputId).files[0];
+    if (!file) { resolve(null); return; }
+    const r = new FileReader();
+    r.onload = e => resolve(e.target.result);
+    r.readAsDataURL(file);
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+//  SUBMIT NEW REVIEW
+// ══════════════════════════════════════════════════════════
+async function submitReview() {
+  if (!idToken) { showToast('Not signed in'); return; }
+  const name   = document.getElementById('f-name').value.trim();
+  const rating = parseFloat(document.getElementById('f-rating').value);
+  const review = document.getElementById('f-review').value.trim();
+  const date   = document.getElementById('f-date').value;
+  if (!name)                              { showToast('Add a noodle name!');   return; }
+  if (isNaN(rating)||rating<0||rating>10) { showToast('Rating must be 0–10'); return; }
+  if (!date)                              { showToast('Pick a date!');         return; }
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true; btn.textContent = 'SAVING…';
+  try {
+    const id = genId();
+    const ox1 = +document.getElementById('f-ox1').value||50, oy1 = +document.getElementById('f-oy1').value||50;
+    const ox2 = +document.getElementById('f-ox2').value||50, oy2 = +document.getElementById('f-oy2').value||50;
+    const [d1, d2] = await Promise.all([getFileDataUrl('f-img1'), getFileDataUrl('f-img2')]);
+    let img1url='', img2url='', up=0; const tot=(d1?1:0)+(d2?1:0);
+    if (d1) {
+      img1url = await uploadImage(d1, p => setProgress('upload-progress-bar-add','upload-progress-add',(up+p)/Math.max(tot,1)));
+      up++;
+    }
+    if (d2) {
+      img2url = await uploadImage(d2, p => setProgress('upload-progress-bar-add','upload-progress-add',(up+p)/Math.max(tot,1)));
+    }
+    setProgress('upload-progress-bar-add','upload-progress-add',0);
+    const rec = { name, rating, review, date, ox1, oy1, ox2, oy2, img1url, img2url };
+    await fsSet(COLLECTION, id, rec);
+    rec._id = id; reviews.unshift(rec);
+    showToast('Review added! 🍜'); renderAdminList();
+    ['f-name','f-rating','f-review'].forEach(x=>document.getElementById(x).value='');
+    ['f-img1','f-img2'].forEach(x=>document.getElementById(x).value='');
+    ['prev1','prev2'].forEach(x=>{document.getElementById(x).style.display='none';});
+    ['ph1','ph2'].forEach(x=>{document.getElementById(x).style.display='';});
+    ['pos1','pos2'].forEach(x=>{document.getElementById(x).classList.remove('visible');});
+    ['f-ox1','f-oy1','f-ox2','f-oy2'].forEach(x=>{document.getElementById(x).value=50;});
+    document.getElementById('rating-preview').textContent='—';
+    document.getElementById('f-date').valueAsDate=new Date();
+  } catch(e) { console.error(e); showToast('Error saving'); }
+  finally { btn.disabled=false; btn.textContent='ADD TO THE BOARD'; }
+}
+
+// ══════════════════════════════════════════════════════════
+//  DELETE
+// ══════════════════════════════════════════════════════════
+async function deleteReview(id) {
+  if (!confirm('Delete this review?')) return;
+  try {
+    await fsDelete(COLLECTION, id);
+    reviews = reviews.filter(x=>x._id!==id);
+    renderAdminList(); renderReviews(); showToast('Deleted');
+  } catch(e) { console.error(e); showToast('Error deleting'); }
+}
+
+// ══════════════════════════════════════════════════════════
+//  EDIT MODAL
+// ══════════════════════════════════════════════════════════
+function openEditModal(id) {
+  const r = reviews.find(x=>x._id===id); if (!r) return;
+  document.getElementById('e-id').value=id;
+  document.getElementById('e-name').value=r.name;
+  document.getElementById('e-rating').value=r.rating;
+  document.getElementById('e-date').value=r.date;
+  document.getElementById('e-review').value=r.review||'';
+  document.getElementById('e-rating-preview').textContent=r.rating+'/10';
+  ['e-img1','e-img2'].forEach(x=>document.getElementById(x).value='');
+  ['ep1','ep2'].forEach(x=>{document.getElementById(x).style.display='none';});
+  ['eph1','eph2'].forEach(x=>{document.getElementById(x).style.display='';});
+  ['epos1','epos2'].forEach(x=>{document.getElementById(x).classList.remove('visible');});
+  let ex='';
+  if (r.img1url||r.img2url) {
+    ex='<label style="font-size:10px;letter-spacing:1px;color:var(--gold);text-transform:uppercase;display:block;margin-bottom:8px;">Adjust existing photo position</label>';
+    if (r.img1url) ex+=`<div style="margin-bottom:12px;"><div style="font-size:11px;color:var(--muted);margin-bottom:6px;">Photo 1</div><div class="pos-row"><span>↔</span><input type="range" id="ex-ox1" min="0" max="100" value="${r.ox1||50}" oninput="liveUpdatePos('${id}',1)"/></div><div class="pos-row"><span>↕</span><input type="range" id="ex-oy1" min="0" max="100" value="${r.oy1||50}" oninput="liveUpdatePos('${id}',1)"/></div></div>`;
+    if (r.img2url) ex+=`<div><div style="font-size:11px;color:var(--muted);margin-bottom:6px;">Photo 2</div><div class="pos-row"><span>↔</span><input type="range" id="ex-ox2" min="0" max="100" value="${r.ox2||50}" oninput="liveUpdatePos('${id}',2)"/></div><div class="pos-row"><span>↕</span><input type="range" id="ex-oy2" min="0" max="100" value="${r.oy2||50}" oninput="liveUpdatePos('${id}',2)"/></div></div>`;
+  }
+  document.getElementById('existing-pos-wrap').innerHTML=ex;
+  document.getElementById('edit-modal').classList.add('open');
+}
+function liveUpdatePos(id, slot) {
+  const ox=+document.getElementById(`ex-ox${slot}`).value||50, oy=+document.getElementById(`ex-oy${slot}`).value||50;
+  const card=document.getElementById('card-'+id);
+  if (card) { const imgs=card.querySelectorAll('.card-img-wrap img'); if(imgs[slot-1]) imgs[slot-1].style.objectPosition=`${ox}% ${oy}%`; }
+}
+function closeEditModal() { document.getElementById('edit-modal').classList.remove('open'); }
+
+async function saveEdit() {
+  const id=document.getElementById('e-id').value;
+  const idx=reviews.findIndex(r=>r._id===id); if(idx===-1) return;
+  const name=document.getElementById('e-name').value.trim();
+  const rating=parseFloat(document.getElementById('e-rating').value);
+  const date=document.getElementById('e-date').value;
+  const review=document.getElementById('e-review').value.trim();
+  if(!name){showToast('Name required');return;}
+  if(isNaN(rating)||rating<0||rating>10){showToast('Rating 0–10');return;}
+  if(!date){showToast('Date required');return;}
+  const btn=document.getElementById('edit-save-btn');
+  btn.disabled=true; btn.textContent='SAVING…';
+  try {
+    const r=reviews[idx];
+    const [nd1,nd2]=await Promise.all([getFileDataUrl('e-img1'),getFileDataUrl('e-img2')]);
+    let img1url=r.img1url||'',img2url=r.img2url||'';
+    let ox1=r.ox1,oy1=r.oy1,ox2=r.ox2,oy2=r.oy2,up=0; const tot=(nd1?1:0)+(nd2?1:0);
+    if(nd1){
+      img1url=await uploadImage(nd1, p=>setProgress('upload-progress-bar-edit','upload-progress-edit',(up+p)/Math.max(tot,1)));
+      up++; ox1=+document.getElementById('e-ox1').value||50; oy1=+document.getElementById('e-oy1').value||50;
+    } else if(document.getElementById('ex-ox1')){ox1=+document.getElementById('ex-ox1').value||50;oy1=+document.getElementById('ex-oy1').value||50;}
+    if(nd2){
+      img2url=await uploadImage(nd2, p=>setProgress('upload-progress-bar-edit','upload-progress-edit',(up+p)/Math.max(tot,1)));
+      ox2=+document.getElementById('e-ox2').value||50; oy2=+document.getElementById('e-oy2').value||50;
+    } else if(document.getElementById('ex-ox2')){ox2=+document.getElementById('ex-ox2').value||50;oy2=+document.getElementById('ex-oy2').value||50;}
+    setProgress('upload-progress-bar-edit','upload-progress-edit',0);
+    const updated={name,rating,review,date,ox1,oy1,ox2,oy2,img1url,img2url};
+    await fsSet(COLLECTION,id,updated);
+    Object.assign(r,updated);
+    closeEditModal(); renderAdminList(); renderReviews(); showToast('Saved! ✓');
+  } catch(e){console.error(e);showToast('Error saving');}
+  finally{btn.disabled=false;btn.textContent='SAVE CHANGES';}
+}
+document.getElementById('edit-modal').addEventListener('click',function(e){if(e.target===this)closeEditModal();});
+
+// ══════════════════════════════════════════════════════════
+//  ADMIN LIST
+// ══════════════════════════════════════════════════════════
+function renderAdminList() {
+  if (!adminUser) return;
+  const list=document.getElementById('admin-existing-list');
+  const arr=[...reviews].sort((a,b)=>b.rating-a.rating);
+  list.innerHTML=arr.map(r=>`
+    <div class="admin-item">
+      <div class="admin-item-name">${r.name} <span style="color:var(--muted);font-size:11px;">${formatDate(r.date)}</span></div>
+      <div class="admin-item-score">${r.rating}/10</div>
+      <button class="admin-item-edit" onclick="openEditModal('${r._id}')">EDIT</button>
+      <button class="admin-item-del" onclick="deleteReview('${r._id}')">DELETE</button>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════════════════
+let popupTimer;
+function showToast(msg) {
+  const ic=document.getElementById('save-popup-icon'),ti=document.getElementById('save-popup-title'),su=document.getElementById('save-popup-sub');
+  if(msg.includes('added')||msg.includes('🍜')){ic.textContent='🍜';ti.textContent='REVIEW ADDED!';su.textContent='Your new review is live on the board.';}
+  else if(msg.includes('Saved')||msg.includes('✓')){ic.textContent='✅';ti.textContent='CHANGES SAVED!';su.textContent='Your review has been updated.';}
+  else if(msg.includes('Deleted')){ic.textContent='🗑️';ti.textContent='DELETED';su.textContent='The review has been removed.';}
+  else if(msg.includes('authorized')){ic.textContent='🔒';ti.textContent='ACCESS DENIED';su.textContent='Wrong Google account.';}
+  else{ic.textContent='⚠️';ti.textContent=msg.toUpperCase();su.textContent='';}
+  const p=document.getElementById('save-popup');
+  p.classList.add('show'); clearTimeout(popupTimer);
+  popupTimer=setTimeout(()=>p.classList.remove('show'),2400);
+}
+document.getElementById('save-popup').addEventListener('click',function(){this.classList.remove('show');});
+
+// ══════════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════════
+(async()=>{
+  await loadReviews();
+  renderReviews();
+})();
+</script>
+</body>
+</html>
