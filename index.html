@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SLURP REPORT — Instant Noodle Reviews</title>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0e0b07;
+    --surface: #18130d;
+    --card: #1f1710;
+    --border: #2e2218;
+    --gold: #f0a500;
+    --gold-dim: #7a5200;
+    --red: #d44000;
+    --cream: #f5ead8;
+    --muted: #8a7560;
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-accent: 'Black Han Sans', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--cream);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Noise texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: relative;
+    text-align: center;
+    padding: 60px 20px 40px;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 50%;
+    transform: translateX(-50%);
+    width: 200px; height: 2px;
+    background: var(--gold);
+  }
+  .header-label {
+    font-family: var(--font-body);
+    font-weight: 300;
+    font-size: 11px;
+    letter-spacing: 6px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(60px, 12vw, 130px);
+    line-height: 0.9;
+    letter-spacing: 4px;
+    color: var(--cream);
+    text-shadow: 0 0 60px rgba(240,165,0,0.15);
+  }
+  h1 span { color: var(--gold); }
+  .header-sub {
+    margin-top: 16px;
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 2px;
+  }
+
+  /* ── NAV TABS ── */
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    margin: 0;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: rgba(14,11,7,0.95);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+  nav button {
+    font-family: var(--font-display);
+    font-size: 18px;
+    letter-spacing: 2px;
+    padding: 16px 36px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s;
+  }
+  nav button::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transition: transform 0.2s;
+  }
+  nav button.active { color: var(--gold); }
+  nav button.active::after { transform: scaleX(1); }
+  nav button:hover { color: var(--cream); }
+
+  /* ── MAIN LAYOUT ── */
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 50px 20px 100px;
+    position: relative;
+    z-index: 1;
+  }
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ── LEADERBOARD ── */
+  .section-title {
+    font-family: var(--font-display);
+    font-size: 42px;
+    letter-spacing: 3px;
+    margin-bottom: 30px;
+    color: var(--cream);
+  }
+  .section-title span { color: var(--gold); }
+
+  #leaderboard-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .lb-row {
+    display: grid;
+    grid-template-columns: 48px 1fr auto auto;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 20px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    transition: background 0.15s;
+    animation: fadeUp 0.4s ease both;
+  }
+  .lb-row:hover { background: #261e14; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .lb-rank {
+    font-family: var(--font-display);
+    font-size: 26px;
+    color: var(--gold-dim);
+    text-align: center;
+  }
+  .lb-row:nth-child(1) .lb-rank { color: var(--gold); font-size: 30px; }
+  .lb-row:nth-child(2) .lb-rank { color: #c0c0c0; font-size: 28px; }
+  .lb-row:nth-child(3) .lb-rank { color: #cd7f32; }
+  .lb-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--cream);
+  }
+  .lb-date {
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .lb-score {
+    font-family: var(--font-display);
+    font-size: 28px;
+    color: var(--gold);
+    min-width: 70px;
+    text-align: right;
+  }
+  .lb-bar-wrap {
+    display: none;
+  }
+
+  /* ── REVIEWS GRID ── */
+  #reviews-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 28px;
+  }
+
+  .review-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    animation: fadeUp 0.5s ease both;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .review-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+  }
+
+  .card-images {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    height: 200px;
+    overflow: hidden;
+    position: relative;
+  }
+  .card-images img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s;
+  }
+  .card-images img:hover { transform: scale(1.05); }
+  .card-images .img-placeholder {
+    width: 100%;
+    height: 100%;
+    background: #2a1f12;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gold-dim);
+    font-size: 32px;
+  }
+  .card-images-divider {
+    position: absolute;
+    left: 50%;
+    top: 0; bottom: 0;
+    width: 2px;
+    background: var(--bg);
+    z-index: 2;
+  }
+
+  .card-body {
+    padding: 18px 20px 20px;
+  }
+  .card-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+  }
+  .card-name {
+    font-family: var(--font-display);
+    font-size: 22px;
+    letter-spacing: 1px;
+    color: var(--cream);
+    line-height: 1.1;
+    flex: 1;
+    padding-right: 12px;
+  }
+  .card-score {
+    font-family: var(--font-display);
+    font-size: 36px;
+    color: var(--gold);
+    white-space: nowrap;
+    line-height: 1;
+  }
+  .card-score .denom {
+    font-size: 16px;
+    color: var(--gold-dim);
+  }
+  .card-date {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+  }
+  .card-review {
+    font-size: 13.5px;
+    color: #c9b89a;
+    line-height: 1.6;
+    font-weight: 300;
+  }
+  .card-stars {
+    display: flex;
+    gap: 3px;
+    margin-top: 12px;
+  }
+  .star {
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
+    background: var(--gold-dim);
+    position: relative;
+    overflow: hidden;
+  }
+  .star-fill {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    background: var(--gold);
+  }
+
+  /* ── ADMIN PANEL ── */
+  #admin-lock {
+    max-width: 400px;
+    margin: 60px auto;
+    text-align: center;
+  }
+  #admin-lock h2 {
+    font-family: var(--font-display);
+    font-size: 36px;
+    margin-bottom: 8px;
+    color: var(--gold);
+  }
+  #admin-lock p { color: var(--muted); margin-bottom: 28px; font-size: 13px; }
+
+  .admin-form {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .admin-form h2 {
+    font-family: var(--font-display);
+    font-size: 36px;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+  .admin-form p { color: var(--muted); margin-bottom: 28px; font-size: 13px; }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+  label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  input[type="text"],
+  input[type="number"],
+  input[type="password"],
+  input[type="date"],
+  textarea {
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 12px 16px;
+    color: var(--cream);
+    font-family: var(--font-body);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input:focus, textarea:focus {
+    border-color: var(--gold);
+  }
+  textarea { resize: vertical; min-height: 100px; }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  .img-upload-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .img-upload-box {
+    background: var(--card);
+    border: 1px dashed var(--border);
+    border-radius: 4px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .img-upload-box:hover { border-color: var(--gold-dim); }
+  .img-upload-box input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+  }
+  .img-upload-box .preview {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 2px;
+    display: none;
+  }
+  .img-upload-box .placeholder {
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .img-upload-box .placeholder span {
+    font-size: 28px;
+    display: block;
+    margin-bottom: 8px;
+    color: var(--gold-dim);
+  }
+
+  .btn {
+    font-family: var(--font-display);
+    font-size: 20px;
+    letter-spacing: 2px;
+    padding: 14px 32px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: var(--gold);
+    color: #0e0b07;
+    width: 100%;
+  }
+  .btn-primary:hover { background: #ffc233; }
+  .btn-secondary {
+    background: var(--card);
+    color: var(--cream);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { border-color: var(--gold-dim); }
+
+  .rating-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .rating-input-wrap input { flex: 1; }
+  .rating-preview {
+    font-family: var(--font-display);
+    font-size: 32px;
+    color: var(--gold);
+    min-width: 70px;
+    text-align: right;
+  }
+
+  /* Admin list */
+  .admin-existing { margin-top: 50px; }
+  .admin-existing h3 {
+    font-family: var(--font-display);
+    font-size: 26px;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  .admin-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    margin-bottom: 6px;
+  }
+  .admin-item-name { font-size: 14px; color: var(--cream); }
+  .admin-item-score { font-family: var(--font-display); font-size: 22px; color: var(--gold); }
+  .admin-item-del {
+    background: none;
+    border: 1px solid #3a2020;
+    color: #a04040;
+    border-radius: 3px;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: var(--font-body);
+    transition: all 0.15s;
+  }
+  .admin-item-del:hover { background: #3a2020; color: #ff8080; }
+
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(60px);
+    background: var(--gold);
+    color: #0e0b07;
+    font-family: var(--font-display);
+    font-size: 18px;
+    letter-spacing: 1px;
+    padding: 12px 28px;
+    border-radius: 4px;
+    z-index: 999;
+    transition: transform 0.3s;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  .sort-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .sort-label { font-size: 12px; color: var(--muted); letter-spacing: 1px; }
+  .sort-btn {
+    font-family: var(--font-body);
+    font-size: 12px;
+    letter-spacing: 1px;
+    padding: 6px 14px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: uppercase;
+  }
+  .sort-btn.active, .sort-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
+
+  .empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--muted);
+  }
+  .empty-state .big { font-size: 64px; margin-bottom: 16px; }
+  .empty-state p { font-size: 14px; }
+
+  @media (max-width: 600px) {
+    .form-row, .img-upload-row { grid-template-columns: 1fr; }
+    #reviews-grid { grid-template-columns: 1fr; }
+    nav button { padding: 14px 18px; font-size: 15px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-label">The Definitive Guide to</div>
+  <h1>SLURP<br/><span>REPORT</span></h1>
+  <div class="header-sub">INSTANT NOODLE RANKINGS & REVIEWS</div>
+</header>
+
+<nav>
+  <button class="active" onclick="switchView('reviews')">Reviews</button>
+  <button onclick="switchView('leaderboard')">Leaderboard</button>
+  <button onclick="switchView('admin')">Admin</button>
+</nav>
+
+<main>
+
+  <!-- REVIEWS VIEW -->
+  <div class="view active" id="view-reviews">
+    <div class="sort-row">
+      <span class="sort-label">Sort:</span>
+      <button class="sort-btn active" onclick="sortReviews('date', this)">Newest</button>
+      <button class="sort-btn" onclick="sortReviews('score-desc', this)">Highest Rated</button>
+      <button class="sort-btn" onclick="sortReviews('score-asc', this)">Lowest Rated</button>
+      <button class="sort-btn" onclick="sortReviews('name', this)">A–Z</button>
+    </div>
+    <div id="reviews-grid"></div>
+  </div>
+
+  <!-- LEADERBOARD VIEW -->
+  <div class="view" id="view-leaderboard">
+    <div class="section-title">THE <span>RANKINGS</span></div>
+    <div id="leaderboard-list"></div>
+  </div>
+
+  <!-- ADMIN VIEW -->
+  <div class="view" id="view-admin">
+    <div id="admin-lock">
+      <h2>ADMIN ACCESS</h2>
+      <p>Enter password to add or manage reviews</p>
+      <div class="form-group">
+        <input type="password" id="pw-input" placeholder="Password" onkeydown="if(event.key==='Enter')checkPw()" />
+      </div>
+      <button class="btn btn-primary" onclick="checkPw()">UNLOCK</button>
+    </div>
+
+    <div class="admin-form" id="admin-panel" style="display:none;">
+      <h2>ADD REVIEW</h2>
+      <p>New entry will appear on the reviews page instantly</p>
+
+      <div class="form-group">
+        <label>Noodle Name</label>
+        <input type="text" id="f-name" placeholder="e.g. Jin Ramen Mild" />
+      </div>
+
+      <div class="form-group">
+        <label>Photos (Package + Cooked)</label>
+        <div class="img-upload-row">
+          <div class="img-upload-box" onclick="document.getElementById('f-img1').click()">
+            <input type="file" id="f-img1" accept="image/*" onchange="previewImg(this,'prev1')" style="opacity:0;position:absolute;inset:0;width:100%;cursor:pointer;" />
+            <img id="prev1" class="preview" />
+            <div class="placeholder" id="ph1"><span>📦</span>Package photo</div>
+          </div>
+          <div class="img-upload-box" onclick="document.getElementById('f-img2').click()">
+            <input type="file" id="f-img2" accept="image/*" onchange="previewImg(this,'prev2')" style="opacity:0;position:absolute;inset:0;width:100%;cursor:pointer;" />
+            <img id="prev2" class="preview" />
+            <div class="placeholder" id="ph2"><span>🍜</span>Cooked photo</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Rating (out of 10)</label>
+          <div class="rating-input-wrap">
+            <input type="number" id="f-rating" min="0" max="10" step="0.5" placeholder="7.5" oninput="updateRatingPreview()" />
+            <div class="rating-preview" id="rating-preview">—</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Date Tried</label>
+          <input type="date" id="f-date" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Review</label>
+        <textarea id="f-review" placeholder="Thoughts on flavor, texture, spice level..."></textarea>
+      </div>
+
+      <button class="btn btn-primary" onclick="submitReview()">ADD TO THE BOARD</button>
+
+      <div class="admin-existing">
+        <h3>MANAGE EXISTING</h3>
+        <div id="admin-existing-list"></div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+//  DATA — pre-loaded reviews (no images for legacy entries)
+// ══════════════════════════════════════════
+const STORAGE_KEY = 'slurp_report_v2';
+const ADMIN_PW = 'noodles123'; // Change this to your own password!
+
+const DEFAULT_REVIEWS = [
+  { id: 1, name: 'Mac Caldo Chicken', rating: 8.5, review: '', date: '2024-01-01', img1: '', img2: '' },
+  { id: 2, name: 'Indomie Special Chicken', rating: 8.0, review: '', date: '2024-01-02', img1: '', img2: '' },
+  { id: 3, name: 'Oyakata Chicken', rating: 7.5, review: '', date: '2024-01-03', img1: '', img2: '' },
+  { id: 4, name: 'Maggi Stir Fried Chicken', rating: 7.0, review: '', date: '2024-01-04', img1: '', img2: '' },
+  { id: 5, name: 'Glads Mie Goreng', rating: 7.0, review: '', date: '2024-01-05', img1: '', img2: '' },
+  { id: 6, name: 'Jin Ramen Mild', rating: 7.0, review: 'Completely different from what I expected — first thing I said when I tasted it was "wow". The noodles are very smooth, haven\'t had texture like this before. Actually has spice even though it says mild (lol). Max before it starts to lose points.', date: '2024-12-01', img1: '', img2: '' },
+  { id: 7, name: 'Maggi Saucy Teriyaki', rating: 6.5, review: '', date: '2024-01-06', img1: '', img2: '' },
+  { id: 8, name: 'Yakisoba Classic', rating: 6.0, review: '', date: '2024-01-07', img1: '', img2: '' },
+  { id: 9, name: 'Namdong Beef', rating: 6.0, review: '', date: '2024-01-08', img1: '', img2: '' },
+  { id: 10, name: 'Reeva Chicken', rating: 5.5, review: '', date: '2024-01-09', img1: '', img2: '' },
+  { id: 11, name: 'Yum Yum Chicken', rating: 5.0, review: '', date: '2024-01-10', img1: '', img2: '' },
+  { id: 12, name: 'Sun Yan Asian Style Chicken', rating: 4.5, review: '', date: '2024-01-11', img1: '', img2: '' },
+];
+
+// ══════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════
+let reviews = [];
+let adminUnlocked = false;
+let currentSort = 'date';
+
+function loadReviews() {
+  const stored = localStorage.getItem(STORAGE_KEY);
+  if (stored) {
+    reviews = JSON.parse(stored);
+  } else {
+    reviews = DEFAULT_REVIEWS;
+    saveReviews();
+  }
+}
+
+function saveReviews() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(reviews));
+}
+
+// ══════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════
+function switchView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  event.target.classList.add('active');
+  if (name === 'reviews') renderReviews();
+  if (name === 'leaderboard') renderLeaderboard();
+  if (name === 'admin') renderAdminList();
+}
+
+// ══════════════════════════════════════════
+//  SORT
+// ══════════════════════════════════════════
+function sortedReviews(mode) {
+  const arr = [...reviews];
+  if (mode === 'date') return arr.sort((a,b) => new Date(b.date) - new Date(a.date));
+  if (mode === 'score-desc') return arr.sort((a,b) => b.rating - a.rating);
+  if (mode === 'score-asc') return arr.sort((a,b) => a.rating - b.rating);
+  if (mode === 'name') return arr.sort((a,b) => a.name.localeCompare(b.name));
+  return arr;
+}
+function sortReviews(mode, btn) {
+  currentSort = mode;
+  document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderReviews();
+}
+
+// ══════════════════════════════════════════
+//  RENDER REVIEWS
+// ══════════════════════════════════════════
+function scoreColor(r) {
+  if (r >= 8) return '#f0a500';
+  if (r >= 6) return '#c8a060';
+  return '#8a7560';
+}
+
+function starsHTML(rating) {
+  let html = '<div class="card-stars">';
+  for (let i = 0; i < 10; i++) {
+    const fill = Math.max(0, Math.min(1, rating - i));
+    html += `<div class="star"><div class="star-fill" style="width:${fill*100}%"></div></div>`;
+  }
+  html += '</div>';
+  return html;
+}
+
+function imgHTML(src, emoji) {
+  if (src) return `<img src="${src}" alt="" loading="lazy" />`;
+  return `<div class="img-placeholder">${emoji}</div>`;
+}
+
+function formatDate(d) {
+  if (!d) return '';
+  const dt = new Date(d + 'T12:00:00');
+  return dt.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function renderReviews() {
+  const grid = document.getElementById('reviews-grid');
+  const arr = sortedReviews(currentSort);
+  if (arr.length === 0) {
+    grid.innerHTML = `<div class="empty-state"><div class="big">🍜</div><p>No reviews yet. Add some from the Admin panel.</p></div>`;
+    return;
+  }
+  grid.innerHTML = arr.map((r, i) => `
+    <div class="review-card" style="animation-delay:${i*0.05}s">
+      <div class="card-images">
+        ${imgHTML(r.img1, '📦')}
+        ${imgHTML(r.img2, '🍜')}
+        <div class="card-images-divider"></div>
+      </div>
+      <div class="card-body">
+        <div class="card-date">${formatDate(r.date)}</div>
+        <div class="card-meta">
+          <div class="card-name">${r.name}</div>
+          <div class="card-score" style="color:${scoreColor(r.rating)}">${r.rating}<span class="denom">/10</span></div>
+        </div>
+        ${r.review ? `<div class="card-review">${r.review}</div>` : ''}
+        ${starsHTML(r.rating)}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ══════════════════════════════════════════
+//  RENDER LEADERBOARD
+// ══════════════════════════════════════════
+function renderLeaderboard() {
+  const list = document.getElementById('leaderboard-list');
+  const arr = [...reviews].sort((a,b) => b.rating - a.rating);
+  const medals = ['🥇','🥈','🥉'];
+  list.innerHTML = arr.map((r, i) => `
+    <div class="lb-row" style="animation-delay:${i*0.04}s">
+      <div class="lb-rank">${medals[i] || (i+1)}</div>
+      <div class="lb-name">${r.name}</div>
+      <div class="lb-date">${formatDate(r.date)}</div>
+      <div class="lb-score">${r.rating}<span style="font-size:14px;color:var(--gold-dim)">/10</span></div>
+    </div>
+  `).join('');
+}
+
+// ══════════════════════════════════════════
+//  ADMIN
+// ══════════════════════════════════════════
+function checkPw() {
+  const val = document.getElementById('pw-input').value;
+  if (val === ADMIN_PW) {
+    adminUnlocked = true;
+    document.getElementById('admin-lock').style.display = 'none';
+    document.getElementById('admin-panel').style.display = 'block';
+    renderAdminList();
+    // set today as default date
+    document.getElementById('f-date').valueAsDate = new Date();
+  } else {
+    showToast('Wrong password!');
+    document.getElementById('pw-input').value = '';
+  }
+}
+
+function previewImg(input, previewId) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const prev = document.getElementById(previewId);
+    const ph = document.getElementById(previewId === 'prev1' ? 'ph1' : 'ph2');
+    prev.src = e.target.result;
+    prev.style.display = 'block';
+    ph.style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function updateRatingPreview() {
+  const v = document.getElementById('f-rating').value;
+  document.getElementById('rating-preview').textContent = v ? v + '/10' : '—';
+}
+
+function getImgData(inputId) {
+  return new Promise(resolve => {
+    const input = document.getElementById(inputId);
+    const file = input.files[0];
+    if (!file) { resolve(''); return; }
+    const reader = new FileReader();
+    reader.onload = e => resolve(e.target.result);
+    reader.readAsDataURL(file);
+  });
+}
+
+async function submitReview() {
+  const name = document.getElementById('f-name').value.trim();
+  const rating = parseFloat(document.getElementById('f-rating').value);
+  const review = document.getElementById('f-review').value.trim();
+  const date = document.getElementById('f-date').value;
+
+  if (!name) { showToast('Add a noodle name!'); return; }
+  if (isNaN(rating) || rating < 0 || rating > 10) { showToast('Rating must be 0–10'); return; }
+  if (!date) { showToast('Pick a date!'); return; }
+
+  const img1 = await getImgData('f-img1');
+  const img2 = await getImgData('f-img2');
+
+  const entry = {
+    id: Date.now(),
+    name, rating, review, date, img1, img2
+  };
+  reviews.unshift(entry);
+  saveReviews();
+  showToast('Review added! 🍜');
+  renderAdminList();
+
+  // reset form
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-rating').value = '';
+  document.getElementById('f-review').value = '';
+  document.getElementById('f-img1').value = '';
+  document.getElementById('f-img2').value = '';
+  document.getElementById('prev1').style.display = 'none';
+  document.getElementById('prev2').style.display = 'none';
+  document.getElementById('ph1').style.display = '';
+  document.getElementById('ph2').style.display = '';
+  document.getElementById('rating-preview').textContent = '—';
+  document.getElementById('f-date').valueAsDate = new Date();
+}
+
+function deleteReview(id) {
+  if (!confirm('Delete this review?')) return;
+  reviews = reviews.filter(r => r.id !== id);
+  saveReviews();
+  renderAdminList();
+  showToast('Deleted');
+}
+
+function renderAdminList() {
+  if (!adminUnlocked) return;
+  const list = document.getElementById('admin-existing-list');
+  const arr = [...reviews].sort((a,b) => b.rating - a.rating);
+  list.innerHTML = arr.map(r => `
+    <div class="admin-item">
+      <div class="admin-item-name">${r.name} <span style="color:var(--muted);font-size:11px;">${formatDate(r.date)}</span></div>
+      <div class="admin-item-score">${r.rating}/10</div>
+      <button class="admin-item-del" onclick="deleteReview(${r.id})">DELETE</button>
+    </div>
+  `).join('');
+}
+
+// ══════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+loadReviews();
+renderReviews();
+</script>
+</body>
+</html>
