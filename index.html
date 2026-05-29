@@ -72,8 +72,10 @@
   .review-card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; animation: fadeUp 0.5s ease both; transition: transform 0.2s, box-shadow 0.2s; }
   .review-card:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(0,0,0,0.5); }
 
-  /* IMAGE AREA — contain zoom, no overflow past divider */
-  .card-images { display: flex; height: 200px; position: relative; overflow: hidden; border-radius: 6px 6px 0 0; }
+  /* IMAGE AREA — square images, each slot is 1:1 */
+  .card-images { display: flex; position: relative; overflow: hidden; border-radius: 6px 6px 0 0; }
+  .card-images:not(.single) { aspect-ratio: 2 / 1; }
+  .card-images.single { aspect-ratio: 1 / 1; }
   .card-img-wrap { flex: 1; overflow: hidden; position: relative; }
   .card-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.4s ease; will-change: transform; }
   .card-img-wrap:hover img { transform: scale(1.06); }
@@ -156,9 +158,14 @@
   .modal h2 { font-family: var(--font-display); font-size: 30px; color: var(--gold); margin-bottom: 6px; }
   .modal p { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
 
-  /* Toast */
-  .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(60px); background: var(--gold); color: #0e0b07; font-family: var(--font-display); font-size: 18px; letter-spacing: 1px; padding: 12px 28px; border-radius: 4px; z-index: 999; transition: transform 0.3s; }
-  .toast.show { transform: translateX(-50%) translateY(0); }
+  /* Save popup overlay */
+  .save-popup { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+  .save-popup.show { opacity: 1; pointer-events: auto; }
+  .save-popup-inner { background: var(--card); border: 2px solid var(--gold); border-radius: 10px; padding: 44px 56px; text-align: center; transform: scale(0.9); transition: transform 0.25s; }
+  .save-popup.show .save-popup-inner { transform: scale(1); }
+  .save-popup-icon { font-size: 52px; margin-bottom: 12px; }
+  .save-popup-title { font-family: var(--font-display); font-size: 40px; letter-spacing: 3px; color: var(--gold); margin-bottom: 6px; }
+  .save-popup-sub { font-size: 14px; color: var(--muted); }
 
   /* Sort row */
   .sort-row { display: flex; gap: 10px; align-items: center; margin-bottom: 24px; flex-wrap: wrap; }
@@ -356,7 +363,13 @@
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="save-popup" id="save-popup">
+  <div class="save-popup-inner">
+    <div class="save-popup-icon" id="save-popup-icon">✅</div>
+    <div class="save-popup-title" id="save-popup-title">SAVED!</div>
+    <div class="save-popup-sub" id="save-popup-sub">Your review has been saved.</div>
+  </div>
+</div>
 
 <script>
 const STORAGE_KEY = 'slurp_report_v3';
@@ -733,15 +746,45 @@ function renderAdminList() {
   `).join('');
 }
 
-// ── TOAST ──
-let toastTimer;
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+// ── POPUP ──
+let popupTimer;
+function showToast(msg, icon) {
+  // map common messages to friendly popup content
+  const popup = document.getElementById('save-popup');
+  const titleEl = document.getElementById('save-popup-title');
+  const subEl = document.getElementById('save-popup-sub');
+  const iconEl = document.getElementById('save-popup-icon');
+
+  if (msg.includes('added') || msg.includes('🍜')) {
+    iconEl.textContent = '🍜';
+    titleEl.textContent = 'REVIEW ADDED!';
+    subEl.textContent = 'Your new review is live on the board.';
+  } else if (msg.includes('Saved') || msg.includes('✓')) {
+    iconEl.textContent = '✅';
+    titleEl.textContent = 'CHANGES SAVED!';
+    subEl.textContent = 'Your review has been updated.';
+  } else if (msg.includes('Deleted')) {
+    iconEl.textContent = '🗑️';
+    titleEl.textContent = 'DELETED';
+    subEl.textContent = 'The review has been removed.';
+  } else if (msg.includes('Wrong')) {
+    iconEl.textContent = '🔒';
+    titleEl.textContent = 'WRONG PASSWORD';
+    subEl.textContent = 'Try again.';
+  } else {
+    iconEl.textContent = '⚠️';
+    titleEl.textContent = msg;
+    subEl.textContent = '';
+  }
+
+  popup.classList.add('show');
+  clearTimeout(popupTimer);
+  popupTimer = setTimeout(() => popup.classList.remove('show'), 2200);
 }
+// click overlay to dismiss early
+document.getElementById('save-popup').addEventListener('click', function() {
+  this.classList.remove('show');
+});
 
 // ── INIT ──
 loadReviews();
