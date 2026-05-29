@@ -7,50 +7,30 @@
 <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
 <style>
   :root {
-    --bg: #0e0b07;
-    --surface: #18130d;
-    --card: #1f1710;
-    --border: #2e2218;
-    --gold: #f0a500;
-    --gold-dim: #7a5200;
-    --red: #d44000;
-    --cream: #f5ead8;
-    --muted: #8a7560;
-    --font-display: 'Bebas Neue', sans-serif;
-    --font-accent: 'Black Han Sans', sans-serif;
-    --font-body: 'DM Sans', sans-serif;
+    --bg: #0e0b07; --surface: #18130d; --card: #1f1710; --border: #2e2218;
+    --gold: #f0a500; --gold-dim: #7a5200; --red: #d44000; --cream: #f5ead8; --muted: #8a7560;
+    --font-display: 'Bebas Neue', sans-serif; --font-accent: 'Black Han Sans', sans-serif; --font-body: 'DM Sans', sans-serif;
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg); color: var(--cream); font-family: var(--font-body); min-height: 100vh; overflow-x: hidden; }
   body::before {
-    content: '';
-    position: fixed; inset: 0;
+    content: ''; position: fixed; inset: 0;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
     pointer-events: none; z-index: 0; opacity: 0.4;
   }
-
-  /* HEADER */
   header { position: relative; text-align: center; padding: 60px 20px 40px; border-bottom: 1px solid var(--border); overflow: hidden; }
   header::after { content: ''; position: absolute; bottom: -1px; left: 50%; transform: translateX(-50%); width: 200px; height: 2px; background: var(--gold); }
-  .header-label { font-family: var(--font-body); font-weight: 300; font-size: 11px; letter-spacing: 6px; color: var(--gold); text-transform: uppercase; margin-bottom: 12px; }
   h1 { font-family: var(--font-display); font-size: clamp(48px, 10vw, 110px); line-height: 0.9; letter-spacing: 4px; color: var(--cream); text-shadow: 0 0 60px rgba(240,165,0,0.15); }
   h1 span { color: var(--gold); }
-  .header-sub { margin-top: 16px; font-size: 13px; color: var(--muted); letter-spacing: 2px; }
-
-  /* NAV */
   nav { display: flex; justify-content: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(14,11,7,0.95); backdrop-filter: blur(12px); z-index: 100; }
   nav button { font-family: var(--font-display); font-size: 18px; letter-spacing: 2px; padding: 16px 36px; background: none; border: none; color: var(--muted); cursor: pointer; position: relative; transition: color 0.2s; }
   nav button::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--gold); transform: scaleX(0); transition: transform 0.2s; }
   nav button.active { color: var(--gold); }
   nav button.active::after { transform: scaleX(1); }
   nav button:hover { color: var(--cream); }
-
-  /* MAIN */
   main { max-width: 1100px; margin: 0 auto; padding: 50px 20px 100px; position: relative; z-index: 1; }
   .view { display: none; }
   .view.active { display: block; }
-
-  /* LEADERBOARD */
   .section-title { font-family: var(--font-display); font-size: 42px; letter-spacing: 3px; margin-bottom: 30px; color: var(--cream); }
   .section-title span { color: var(--gold); }
   #leaderboard-list { display: flex; flex-direction: column; gap: 4px; }
@@ -66,13 +46,9 @@
   .lb-score { font-family: var(--font-display); font-size: 28px; color: var(--gold); min-width: 70px; text-align: right; }
   .lb-jump { font-family: var(--font-body); font-size: 11px; letter-spacing: 1px; padding: 5px 12px; background: none; border: 1px solid var(--gold-dim); color: var(--gold-dim); border-radius: 3px; cursor: pointer; text-transform: uppercase; white-space: nowrap; transition: all 0.15s; }
   .lb-jump:hover { border-color: var(--gold); color: var(--gold); background: rgba(240,165,0,0.07); }
-
-  /* REVIEWS GRID */
   #reviews-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 28px; }
   .review-card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; animation: fadeUp 0.5s ease both; transition: transform 0.2s, box-shadow 0.2s; }
   .review-card:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(0,0,0,0.5); }
-
-  /* IMAGE AREA — square images, each slot is 1:1 */
   .card-images { display: flex; position: relative; overflow: hidden; border-radius: 6px 6px 0 0; }
   .card-images:not(.single) { aspect-ratio: 2 / 1; }
   .card-images.single { aspect-ratio: 1 / 1; }
@@ -80,13 +56,9 @@
   .card-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.4s ease; will-change: transform; }
   .card-img-wrap:hover img { transform: scale(1.06); }
   .card-images-divider { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: var(--bg); z-index: 2; pointer-events: none; }
-  /* single image: full width, centered */
   .card-images.single .card-img-wrap { flex: none; width: 100%; }
   .card-images.single .card-images-divider { display: none; }
-
   .img-placeholder { width: 100%; height: 100%; background: #2a1f12; display: flex; align-items: center; justify-content: center; color: var(--gold-dim); font-size: 32px; }
-
-  /* CARD BODY */
   .card-body { padding: 18px 20px 20px; }
   .card-meta { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
   .card-name { font-family: var(--font-display); font-size: 22px; letter-spacing: 1px; color: var(--cream); line-height: 1.1; flex: 1; padding-right: 12px; }
@@ -97,20 +69,28 @@
   .card-stars { display: flex; gap: 3px; margin-top: 12px; }
   .star { width: 14px; height: 14px; border-radius: 2px; background: var(--gold-dim); position: relative; overflow: hidden; }
   .star-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--gold); }
-
-  /* ADMIN */
-  #admin-lock { max-width: 400px; margin: 60px auto; text-align: center; }
-  #admin-lock h2 { font-family: var(--font-display); font-size: 36px; margin-bottom: 8px; color: var(--gold); }
-  #admin-lock p { color: var(--muted); margin-bottom: 28px; font-size: 13px; }
-  .admin-form { max-width: 600px; margin: 0 auto; }
-  .admin-form h2 { font-family: var(--font-display); font-size: 36px; color: var(--gold); margin-bottom: 8px; }
-  .admin-form p { color: var(--muted); margin-bottom: 28px; font-size: 13px; }
+  #admin-login-area { max-width: 400px; margin: 60px auto; text-align: center; }
+  #admin-login-area h2 { font-family: var(--font-display); font-size: 36px; margin-bottom: 8px; color: var(--gold); }
+  #admin-login-area p { color: var(--muted); margin-bottom: 28px; font-size: 13px; }
+  .google-btn { display: inline-flex; align-items: center; gap: 12px; background: #fff; color: #333; border: none; border-radius: 4px; padding: 12px 24px; font-family: var(--font-body); font-size: 15px; font-weight: 500; cursor: pointer; transition: box-shadow 0.2s; }
+  .google-btn:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
+  .google-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
+  #admin-user-bar { display: none; align-items: center; gap: 12px; margin-bottom: 28px; padding: 12px 16px; background: var(--card); border: 1px solid var(--border); border-radius: 4px; }
+  #admin-user-bar.visible { display: flex; }
+  #admin-user-avatar { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--gold-dim); }
+  #admin-user-name { font-size: 14px; color: var(--cream); flex: 1; }
+  .signout-btn { background: none; border: 1px solid var(--border); color: var(--muted); border-radius: 3px; padding: 4px 10px; cursor: pointer; font-size: 12px; font-family: var(--font-body); transition: all 0.15s; }
+  .signout-btn:hover { border-color: var(--red); color: #ff6060; }
+  .admin-form { max-width: 600px; margin: 0 auto; display: none; }
+  .admin-form.visible { display: block; }
+  .admin-form > h2 { font-family: var(--font-display); font-size: 36px; color: var(--gold); margin-bottom: 8px; }
+  .admin-form > p { color: var(--muted); margin-bottom: 28px; font-size: 13px; }
   .form-group { margin-bottom: 20px; }
   label { display: block; font-size: 11px; letter-spacing: 2px; color: var(--gold); text-transform: uppercase; margin-bottom: 8px; }
-  input[type="text"], input[type="number"], input[type="password"], input[type="date"], textarea, select {
+  input[type="text"], input[type="number"], input[type="password"], input[type="date"], textarea {
     width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 12px 16px; color: var(--cream); font-family: var(--font-body); font-size: 14px; outline: none; transition: border-color 0.2s;
   }
-  input:focus, textarea:focus, select:focus { border-color: var(--gold); }
+  input:focus, textarea:focus { border-color: var(--gold); }
   textarea { resize: vertical; min-height: 100px; }
   .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   .img-upload-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -120,25 +100,19 @@
   .img-upload-box .preview { width: 100%; height: 120px; object-fit: cover; border-radius: 2px; display: none; }
   .img-upload-box .placeholder { color: var(--muted); font-size: 12px; }
   .img-upload-box .placeholder span { font-size: 28px; display: block; margin-bottom: 8px; color: var(--gold-dim); }
-
-  /* Image position controls */
   .img-pos-controls { margin-top: 10px; display: none; }
   .img-pos-controls.visible { display: block; }
   .img-pos-controls label { font-size: 10px; letter-spacing: 1px; margin-bottom: 4px; }
   .pos-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
   .pos-row span { font-size: 11px; color: var(--muted); min-width: 22px; }
   input[type="range"] { flex: 1; accent-color: var(--gold); cursor: pointer; background: transparent; }
-
   .btn { font-family: var(--font-display); font-size: 20px; letter-spacing: 2px; padding: 14px 32px; border: none; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
   .btn-primary { background: var(--gold); color: #0e0b07; width: 100%; }
   .btn-primary:hover { background: #ffc233; }
-  .btn-secondary { background: var(--card); color: var(--cream); border: 1px solid var(--border); }
-  .btn-secondary:hover { border-color: var(--gold-dim); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
   .rating-input-wrap { display: flex; align-items: center; gap: 12px; }
   .rating-input-wrap input { flex: 1; }
   .rating-preview { font-family: var(--font-display); font-size: 32px; color: var(--gold); min-width: 70px; text-align: right; }
-
-  /* Admin list */
   .admin-existing { margin-top: 50px; }
   .admin-existing h3 { font-family: var(--font-display); font-size: 26px; color: var(--muted); margin-bottom: 16px; }
   .admin-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background: var(--card); border: 1px solid var(--border); border-radius: 4px; margin-bottom: 6px; gap: 12px; }
@@ -148,17 +122,16 @@
   .admin-item-edit:hover { background: rgba(240,165,0,0.1); color: var(--gold); border-color: var(--gold); }
   .admin-item-del { background: none; border: 1px solid #3a2020; color: #a04040; border-radius: 3px; padding: 4px 10px; cursor: pointer; font-size: 12px; font-family: var(--font-body); transition: all 0.15s; }
   .admin-item-del:hover { background: #3a2020; color: #ff8080; }
-
-  /* EDIT MODAL */
+  .upload-progress { display: none; margin-top: 8px; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .upload-progress.visible { display: block; }
+  .upload-progress-bar { height: 100%; background: var(--gold); width: 0%; transition: width 0.2s; }
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 500; display: none; align-items: flex-start; justify-content: center; padding: 40px 20px; overflow-y: auto; }
   .modal-overlay.open { display: flex; }
   .modal { background: #1a1409; border: 1px solid var(--border); border-radius: 6px; padding: 32px; width: 100%; max-width: 640px; position: relative; animation: fadeUp 0.25s ease; }
   .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--muted); font-size: 22px; cursor: pointer; line-height: 1; }
   .modal-close:hover { color: var(--cream); }
   .modal h2 { font-family: var(--font-display); font-size: 30px; color: var(--gold); margin-bottom: 6px; }
-  .modal p { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
-
-  /* Save popup overlay */
+  .modal > p { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
   .save-popup { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
   .save-popup.show { opacity: 1; pointer-events: auto; }
   .save-popup-inner { background: var(--card); border: 2px solid var(--gold); border-radius: 10px; padding: 44px 56px; text-align: center; transform: scale(0.9); transition: transform 0.25s; }
@@ -166,8 +139,6 @@
   .save-popup-icon { font-size: 52px; margin-bottom: 12px; }
   .save-popup-title { font-family: var(--font-display); font-size: 40px; letter-spacing: 3px; color: var(--gold); margin-bottom: 6px; }
   .save-popup-sub { font-size: 14px; color: var(--muted); }
-
-  /* Sort row */
   .sort-row { display: flex; gap: 10px; align-items: center; margin-bottom: 24px; flex-wrap: wrap; }
   .sort-label { font-size: 12px; color: var(--muted); letter-spacing: 1px; }
   .sort-btn { font-family: var(--font-body); font-size: 12px; letter-spacing: 1px; padding: 6px 14px; background: var(--card); border: 1px solid var(--border); border-radius: 3px; color: var(--muted); cursor: pointer; transition: all 0.15s; text-transform: uppercase; }
@@ -175,7 +146,9 @@
   .empty-state { text-align: center; padding: 80px 20px; color: var(--muted); }
   .empty-state .big { font-size: 64px; margin-bottom: 16px; }
   .empty-state p { font-size: 14px; }
-
+  .loading-state { text-align: center; padding: 80px 20px; color: var(--muted); }
+  .loading-spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
   @media (max-width: 600px) {
     .form-row, .img-upload-row { grid-template-columns: 1fr; }
     #reviews-grid { grid-template-columns: 1fr; }
@@ -198,7 +171,6 @@
 </nav>
 
 <main>
-  <!-- REVIEWS -->
   <div class="view active" id="view-reviews">
     <div class="sort-row">
       <span class="sort-label">Sort:</span>
@@ -207,37 +179,41 @@
       <button class="sort-btn" onclick="sortReviews('score-asc', this)">Lowest Rated</button>
       <button class="sort-btn" onclick="sortReviews('name', this)">A–Z</button>
     </div>
-    <div id="reviews-grid"></div>
+    <div id="reviews-grid">
+      <div class="loading-state"><div class="loading-spinner"></div><p>Loading reviews…</p></div>
+    </div>
   </div>
 
-  <!-- LEADERBOARD -->
   <div class="view" id="view-leaderboard">
     <div class="section-title">THE <span>RANKINGS</span></div>
     <div id="leaderboard-list"></div>
   </div>
 
-  <!-- ADMIN -->
   <div class="view" id="view-admin">
-    <div id="admin-lock">
+    <div id="admin-login-area">
       <h2>ADMIN ACCESS</h2>
-      <p>Enter password to add or manage reviews</p>
-      <div class="form-group">
-        <input type="password" id="pw-input" placeholder="Password" onkeydown="if(event.key==='Enter')checkPw()" />
-      </div>
-      <button class="btn btn-primary" onclick="checkPw()">UNLOCK</button>
+      <p>Sign in with the authorized Google account to manage reviews</p>
+      <button class="google-btn" onclick="signIn()">
+        <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
+        Sign in with Google
+      </button>
     </div>
 
-    <div class="admin-form" id="admin-panel" style="display:none;">
-      <h2>ADD REVIEW</h2>
-      <p>New entry will appear on the reviews page instantly</p>
+    <div id="admin-user-bar">
+      <img id="admin-user-avatar" src="" alt="" />
+      <span id="admin-user-name"></span>
+      <button class="signout-btn" onclick="signOut()">Sign out</button>
+    </div>
 
+    <div class="admin-form" id="admin-panel">
+      <h2>ADD REVIEW</h2>
+      <p>New entry is saved to Firebase and visible to everyone instantly</p>
       <div class="form-group">
         <label>Noodle Name</label>
         <input type="text" id="f-name" placeholder="e.g. Jin Ramen Mild" />
       </div>
-
       <div class="form-group">
-        <label>Photos (Package + Cooked — upload one or both)</label>
+        <label>Photos (upload one or both)</label>
         <div class="img-upload-row">
           <div>
             <div class="img-upload-box">
@@ -264,8 +240,8 @@
             </div>
           </div>
         </div>
+        <div class="upload-progress" id="upload-progress-add"><div class="upload-progress-bar" id="upload-progress-bar-add"></div></div>
       </div>
-
       <div class="form-row">
         <div class="form-group">
           <label>Rating (out of 10)</label>
@@ -279,14 +255,11 @@
           <input type="date" id="f-date" />
         </div>
       </div>
-
       <div class="form-group">
         <label>Review</label>
         <textarea id="f-review" placeholder="Thoughts on flavor, texture, spice level..."></textarea>
       </div>
-
-      <button class="btn btn-primary" onclick="submitReview()">ADD TO THE BOARD</button>
-
+      <button class="btn btn-primary" id="submit-btn" onclick="submitReview()">ADD TO THE BOARD</button>
       <div class="admin-existing">
         <h3>MANAGE EXISTING</h3>
         <div id="admin-existing-list"></div>
@@ -302,12 +275,10 @@
     <h2>EDIT REVIEW</h2>
     <p>Update any fields — blank photo fields keep the current photo</p>
     <input type="hidden" id="e-id" />
-
     <div class="form-group">
       <label>Noodle Name</label>
       <input type="text" id="e-name" />
     </div>
-
     <div class="form-group">
       <label>Photos (leave blank to keep existing)</label>
       <div class="img-upload-row">
@@ -336,10 +307,9 @@
           </div>
         </div>
       </div>
-      <p style="font-size:11px;color:var(--muted);margin-top:8px;">If the review already has photos, you can also adjust their position below even without re-uploading.</p>
+      <div class="upload-progress" id="upload-progress-edit"><div class="upload-progress-bar" id="upload-progress-bar-edit"></div></div>
       <div style="margin-top:10px;" id="existing-pos-wrap"></div>
     </div>
-
     <div class="form-row">
       <div class="form-group">
         <label>Rating (out of 10)</label>
@@ -353,13 +323,11 @@
         <input type="date" id="e-date" />
       </div>
     </div>
-
     <div class="form-group">
       <label>Review</label>
       <textarea id="e-review"></textarea>
     </div>
-
-    <button class="btn btn-primary" onclick="saveEdit()">SAVE CHANGES</button>
+    <button class="btn btn-primary" id="edit-save-btn" onclick="saveEdit()">SAVE CHANGES</button>
   </div>
 </div>
 
@@ -371,62 +339,173 @@
   </div>
 </div>
 
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
-const STORAGE_KEY = 'slurp_report_v3';
-const ADMIN_PW = 'noodles123';
+// ══════════════════════════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════════════════════════
+const FIREBASE_PROJECT  = 'trepo-reviews';
+const GOOGLE_CLIENT_ID  = '435236222119-8b3suq1ema04smr3im6asmfff6bjrasg.apps.googleusercontent.com';
+const ADMIN_EMAIL       = 'spoopydescoop@gmail.com';
+const CLOUDINARY_CLOUD  = 'dzqo8c9aj';
+const CLOUDINARY_PRESET = 'mwv7ms1y';
 
-const DEFAULT_REVIEWS = [
-  { id: 1,  name: 'Mac Caldo Chicken',         rating: 8.5, review: '', date: '2024-01-01', img1:'', img2:'', ox1:50,oy1:50,ox2:50,oy2:50 },
-  { id: 2,  name: 'Indomie Special Chicken',   rating: 8.0, review: '', date: '2024-01-02', img1:'', img2:'', ox1:50,oy1:50,ox2:50,oy2:50 },
-  { id: 3,  name: 'Oyakata Chicken',            rating: 7.5, review: '', date: '2024-01-03', img1:'', img2:'', ox1:50,oy1:50,ox2:50,oy2:50 },
-  { id: 4,  name: 'Maggi Stir Fried Chicken',  rating: 7.0, review: '', date: '2024-01-04', img1:'', img2:'', ox1:50,oy1:50,ox2:50,oy2:50 },
-  { id: 5,  name: 'Glads Mie Goreng',          rating: 7.0, review: '', date: '2024-01-05', img1:'', img2:'', ox1:50,oy1:50,ox2:50,oy2:50 },
-  { id: 6,  name: 'Jin Ramen Mild',            rating: 7.0, review: 'Completely different from what I expected \u2014 first thing I said when I tasted it was \u201cwow\u201d. The noodles are very smooth, haven\u2019t had texture like this before. Actually has spice even though it says mild (lol). Max before it starts to lose points.', date: '2024-12-01', img1:'', img2:'', ox1:50,oy1:50,ox2:50,oy2:50 },
-  { id: 7,  name: 'Maggi Saucy Teriyaki',      rating: 6.5, review: '', date: '2024-01-06', img1:'', img2:'', ox1:50,oy1:50,ox2:50,oy2:50 },
-  { id: 8,  name: 'Yakisoba Classic',          rating: 6.0, review: '', date: '2024-01-07', img1:'', img2:'', ox1:50,oy1:50,ox2:50,oy2:50 },
-  { id: 9,  name: 'Namdong Beef',              rating: 6.0, review: '', date: '2024-01-08', img1:'', img2:'', ox1:50,oy1:50,ox2:50,oy2:50 },
-  { id: 10, name: 'Reeva Chicken',             rating: 5.5, review: '', date: '2024-01-09', img1:'', img2:'', ox1:50,oy1:50,ox2:50,oy2:50 },
-  { id: 11, name: 'Yum Yum Chicken',           rating: 5.0, review: '', date: '2024-01-10', img1:'', img2:'', ox1:50,oy1:50,ox2:50,oy2:50 },
-  { id: 12, name: 'Sun Yan - Asian Style Chicken', rating: 4.5, review: '', date: '2026-04-02', img1:'', img2:'', ox1:50,oy1:50,ox2:50,oy2:50 },
-];
+const FS_BASE = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT}/databases/(default)/documents`;
 
-let reviews = [];
-let adminUnlocked = false;
+// ══════════════════════════════════════════════════════════
+//  AUTH
+// ══════════════════════════════════════════════════════════
+let idToken   = null;
+let adminUser = null;
+
+function signIn() {
+  google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleCredential });
+  google.accounts.id.prompt();
+}
+
+function handleCredential(response) {
+  const payload = JSON.parse(atob(response.credential.split('.')[1]));
+  if (payload.email !== ADMIN_EMAIL) { showToast('Not authorized'); return; }
+  idToken   = response.credential;
+  adminUser = { name: payload.name, email: payload.email, avatar: payload.picture };
+  document.getElementById('admin-login-area').style.display = 'none';
+  const bar = document.getElementById('admin-user-bar');
+  bar.classList.add('visible');
+  document.getElementById('admin-user-avatar').src  = adminUser.avatar;
+  document.getElementById('admin-user-name').textContent = adminUser.name;
+  document.getElementById('admin-panel').classList.add('visible');
+  document.getElementById('f-date').valueAsDate = new Date();
+  renderAdminList();
+}
+
+function signOut() {
+  idToken = null; adminUser = null;
+  document.getElementById('admin-login-area').style.display = '';
+  document.getElementById('admin-user-bar').classList.remove('visible');
+  document.getElementById('admin-panel').classList.remove('visible');
+  google.accounts.id.disableAutoSelect();
+}
+
+window.addEventListener('load', () => {
+  const tryInit = () => {
+    google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleCredential, auto_select: true });
+    google.accounts.id.prompt();
+  };
+  if (typeof google !== 'undefined') tryInit();
+  else document.querySelector('script[src*="gsi"]').addEventListener('load', tryInit);
+});
+
+// ══════════════════════════════════════════════════════════
+//  FIRESTORE REST
+// ══════════════════════════════════════════════════════════
+function toFS(obj) {
+  const fields = {};
+  for (const [k, v] of Object.entries(obj)) {
+    if (v === null || v === undefined) fields[k] = { nullValue: null };
+    else if (typeof v === 'number')    fields[k] = { doubleValue: v };
+    else                               fields[k] = { stringValue: String(v) };
+  }
+  return { fields };
+}
+
+function fromFS(doc) {
+  const obj = { _id: doc.name.split('/').pop() };
+  for (const [k, v] of Object.entries(doc.fields || {})) {
+    if      ('stringValue'  in v) obj[k] = v.stringValue;
+    else if ('doubleValue'  in v) obj[k] = v.doubleValue;
+    else if ('integerValue' in v) obj[k] = Number(v.integerValue);
+    else if ('booleanValue' in v) obj[k] = v.booleanValue;
+    else obj[k] = null;
+  }
+  return obj;
+}
+
+async function fsGetAll(collection) {
+  const res  = await fetch(`${FS_BASE}/${collection}?pageSize=300`);
+  if (!res.ok) return [];
+  const data = await res.json();
+  return (data.documents || []).map(fromFS);
+}
+
+async function fsSet(collection, docId, obj) {
+  const res = await fetch(`${FS_BASE}/${collection}/${docId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${idToken}` },
+    body: JSON.stringify(toFS(obj)),
+  });
+  if (!res.ok) throw new Error(await res.text());
+}
+
+async function fsDelete(collection, docId) {
+  const res = await fetch(`${FS_BASE}/${collection}/${docId}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${idToken}` },
+  });
+  if (!res.ok) throw new Error(await res.text());
+}
+
+// ══════════════════════════════════════════════════════════
+//  CLOUDINARY IMAGE UPLOAD
+// ══════════════════════════════════════════════════════════
+async function uploadImage(dataUrl, onProgress) {
+  const blob = await (await fetch(dataUrl)).blob();
+  const fd   = new FormData();
+  fd.append('file', blob);
+  fd.append('upload_preset', CLOUDINARY_PRESET);
+
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`);
+    xhr.upload.onprogress = e => { if (e.lengthComputable && onProgress) onProgress(e.loaded / e.total); };
+    xhr.onload = () => {
+      if (xhr.status === 200) {
+        resolve(JSON.parse(xhr.responseText).secure_url);
+      } else {
+        reject(new Error(xhr.responseText));
+      }
+    };
+    xhr.onerror = () => reject(new Error('Upload failed'));
+    xhr.send(fd);
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+//  APP STATE
+// ══════════════════════════════════════════════════════════
+let reviews     = [];
 let currentSort = 'date';
 
-function loadReviews() {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored) {
-    reviews = JSON.parse(stored);
-    // backfill pos fields for old entries
-    reviews.forEach(r => {
-      if (r.ox1 === undefined) { r.ox1=50; r.oy1=50; r.ox2=50; r.oy2=50; }
-    });
-  } else {
-    reviews = DEFAULT_REVIEWS;
-    saveReviews();
-  }
+async function loadReviews() {
+  reviews = await fsGetAll('reviews');
+  reviews.forEach(r => {
+    r.rating = parseFloat(r.rating) || 0;
+    r.ox1 = parseFloat(r.ox1) || 50; r.oy1 = parseFloat(r.oy1) || 50;
+    r.ox2 = parseFloat(r.ox2) || 50; r.oy2 = parseFloat(r.oy2) || 50;
+  });
 }
-function saveReviews() { localStorage.setItem(STORAGE_KEY, JSON.stringify(reviews)); }
 
-// ── NAV ──
+// ══════════════════════════════════════════════════════════
+//  NAV
+// ══════════════════════════════════════════════════════════
 function switchView(name, btn) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
   document.getElementById('view-' + name).classList.add('active');
   btn.classList.add('active');
-  if (name === 'reviews') renderReviews();
+  if (name === 'reviews')     renderReviews();
   if (name === 'leaderboard') renderLeaderboard();
-  if (name === 'admin') renderAdminList();
+  if (name === 'admin')       renderAdminList();
 }
 
-// ── SORT ──
+// ══════════════════════════════════════════════════════════
+//  SORT
+// ══════════════════════════════════════════════════════════
 function sortedReviews(mode) {
   const arr = [...reviews];
-  if (mode === 'date') return arr.sort((a,b) => new Date(b.date)-new Date(a.date));
-  if (mode === 'score-desc') return arr.sort((a,b) => b.rating-a.rating);
-  if (mode === 'score-asc')  return arr.sort((a,b) => a.rating-b.rating);
-  if (mode === 'name') return arr.sort((a,b) => a.name.localeCompare(b.name));
+  if (mode === 'date')       return arr.sort((a,b) => new Date(b.date) - new Date(a.date));
+  if (mode === 'score-desc') return arr.sort((a,b) => b.rating - a.rating);
+  if (mode === 'score-asc')  return arr.sort((a,b) => a.rating - b.rating);
+  if (mode === 'name')       return arr.sort((a,b) => a.name.localeCompare(b.name));
   return arr;
 }
 function sortReviews(mode, btn) {
@@ -436,52 +515,41 @@ function sortReviews(mode, btn) {
   renderReviews();
 }
 
-// ── HELPERS ──
-function scoreColor(r) { if (r>=8) return '#f0a500'; if (r>=6) return '#c8a060'; return '#8a7560'; }
+// ══════════════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════════════
+function scoreColor(r) { return r >= 8 ? '#f0a500' : r >= 6 ? '#c8a060' : '#8a7560'; }
 function starsHTML(rating) {
   let h = '<div class="card-stars">';
-  for (let i=0;i<10;i++) { const f=Math.max(0,Math.min(1,rating-i)); h+=`<div class="star"><div class="star-fill" style="width:${f*100}%"></div></div>`; }
-  return h+'</div>';
+  for (let i = 0; i < 10; i++) {
+    const f = Math.max(0, Math.min(1, rating - i));
+    h += `<div class="star"><div class="star-fill" style="width:${f*100}%"></div></div>`;
+  }
+  return h + '</div>';
 }
 function formatDate(d) {
   if (!d) return '';
-  const dt = new Date(d+'T12:00:00');
-  return dt.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  return new Date(d + 'T12:00:00').toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+}
+function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function setProgress(barId, wrapId, pct) {
+  document.getElementById(wrapId).classList.toggle('visible', pct > 0 && pct < 1);
+  document.getElementById(barId).style.width = (pct * 100) + '%';
 }
 
-// Build image element HTML with object-position support
-function imgHTML(src, ox, oy) {
-  if (!src) return '';
-  const pos = `${ox||50}% ${oy||50}%`;
-  return `<div class="card-img-wrap"><img src="${src}" alt="" loading="lazy" style="object-position:${pos}" /></div>`;
-}
-function placeholderHTML(emoji) {
-  return `<div class="card-img-wrap"><div class="img-placeholder">${emoji}</div></div>`;
-}
-
-// ── RENDER REVIEWS ──
+// ══════════════════════════════════════════════════════════
+//  RENDER REVIEWS
+// ══════════════════════════════════════════════════════════
 function renderReviews() {
   const grid = document.getElementById('reviews-grid');
-  const arr = sortedReviews(currentSort);
+  const arr  = sortedReviews(currentSort);
   if (!arr.length) {
     grid.innerHTML = `<div class="empty-state"><div class="big">🍜</div><p>No reviews yet.</p></div>`;
     return;
   }
-  grid.innerHTML = arr.map((r,i) => {
-    const has1 = !!r.img1, has2 = !!r.img2;
-    let imgArea = '';
-    if (has1 && has2) {
-      imgArea = `<div class="card-images">${imgHTML(r.img1,r.ox1,r.oy1)}${imgHTML(r.img2,r.ox2,r.oy2)}<div class="card-images-divider"></div></div>`;
-    } else if (has1) {
-      imgArea = `<div class="card-images single">${imgHTML(r.img1,r.ox1,r.oy1)}</div>`;
-    } else if (has2) {
-      imgArea = `<div class="card-images single">${imgHTML(r.img2,r.ox2,r.oy2)}</div>`;
-    } else {
-      imgArea = `<div class="card-images">${placeholderHTML('📦')}${placeholderHTML('🍜')}<div class="card-images-divider"></div></div>`;
-    }
-    return `
-    <div class="review-card" id="card-${r.id}" style="animation-delay:${i*0.05}s">
-      ${imgArea}
+  grid.innerHTML = arr.map((r, i) => `
+    <div class="review-card" id="card-${r._id}" style="animation-delay:${i*0.05}s">
+      ${buildImgAreaHTML(r)}
       <div class="card-body">
         <div class="card-date">${formatDate(r.date)}</div>
         <div class="card-meta">
@@ -491,75 +559,57 @@ function renderReviews() {
         ${r.review ? `<div class="card-review">${r.review}</div>` : ''}
         ${starsHTML(r.rating)}
       </div>
-    </div>`;
-  }).join('');
+    </div>`).join('');
 }
 
-// ── RENDER LEADERBOARD ──
+function buildImgAreaHTML(r) {
+  const h1 = !!r.img1url, h2 = !!r.img2url;
+  if (h1 && h2) return `<div class="card-images"><div class="card-img-wrap"><img src="${r.img1url}" alt="" loading="lazy" style="object-position:${r.ox1}% ${r.oy1}%" /></div><div class="card-img-wrap"><img src="${r.img2url}" alt="" loading="lazy" style="object-position:${r.ox2}% ${r.oy2}%" /></div><div class="card-images-divider"></div></div>`;
+  if (h1) return `<div class="card-images single"><div class="card-img-wrap"><img src="${r.img1url}" alt="" loading="lazy" style="object-position:${r.ox1}% ${r.oy1}%" /></div></div>`;
+  if (h2) return `<div class="card-images single"><div class="card-img-wrap"><img src="${r.img2url}" alt="" loading="lazy" style="object-position:${r.ox2}% ${r.oy2}%" /></div></div>`;
+  return `<div class="card-images"><div class="card-img-wrap"><div class="img-placeholder">📦</div></div><div class="card-img-wrap"><div class="img-placeholder">🍜</div></div><div class="card-images-divider"></div></div>`;
+}
+
+// ══════════════════════════════════════════════════════════
+//  LEADERBOARD
+// ══════════════════════════════════════════════════════════
 function renderLeaderboard() {
-  const list = document.getElementById('leaderboard-list');
-  const arr = [...reviews].sort((a,b) => b.rating-a.rating);
+  const list   = document.getElementById('leaderboard-list');
+  const arr    = [...reviews].sort((a,b) => b.rating - a.rating);
   const medals = ['🥇','🥈','🥉'];
-  list.innerHTML = arr.map((r,i) => `
+  list.innerHTML = arr.map((r, i) => `
     <div class="lb-row" style="animation-delay:${i*0.04}s">
-      <div class="lb-rank">${medals[i]||(i+1)}</div>
+      <div class="lb-rank">${medals[i] || (i+1)}</div>
       <div class="lb-name">${r.name}</div>
       <div class="lb-date">${formatDate(r.date)}</div>
-      <button class="lb-jump" onclick="jumpToReview(${r.id})">↗ View</button>
+      <button class="lb-jump" onclick="jumpToReview('${r._id}')">↗ View</button>
       <div class="lb-score">${r.rating}<span style="font-size:14px;color:var(--gold-dim)">/10</span></div>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
-
 function jumpToReview(id) {
-  // Switch to reviews tab, then scroll to card
-  const reviewsBtn = document.querySelector('nav button:first-child');
-  switchView('reviews', reviewsBtn);
-  reviewsBtn.classList.add('active');
-  setTimeout(() => {
-    const card = document.getElementById('card-'+id);
-    if (card) card.scrollIntoView({behavior:'smooth', block:'center'});
-  }, 100);
+  const btn = document.querySelector('nav button:first-child');
+  switchView('reviews', btn);
+  setTimeout(() => { const c = document.getElementById('card-'+id); if (c) c.scrollIntoView({behavior:'smooth',block:'center'}); }, 120);
 }
 
-// ── ADMIN AUTH ──
-function checkPw() {
-  if (document.getElementById('pw-input').value === ADMIN_PW) {
-    adminUnlocked = true;
-    document.getElementById('admin-lock').style.display = 'none';
-    document.getElementById('admin-panel').style.display = 'block';
-    renderAdminList();
-    document.getElementById('f-date').valueAsDate = new Date();
-  } else {
-    showToast('Wrong password!');
-    document.getElementById('pw-input').value = '';
-  }
-}
-
-// ── IMAGE PREVIEW ──
+// ══════════════════════════════════════════════════════════
+//  IMAGE PREVIEW HELPERS
+// ══════════════════════════════════════════════════════════
 function previewImg(input, previewId, phId, posId) {
-  const file = input.files[0];
-  if (!file) return;
+  const file = input.files[0]; if (!file) return;
   const reader = new FileReader();
   reader.onload = e => {
     const prev = document.getElementById(previewId);
-    prev.src = e.target.result;
-    prev.style.display = 'block';
+    prev.src = e.target.result; prev.style.display = 'block';
     document.getElementById(phId).style.display = 'none';
-    const pos = document.getElementById(posId);
-    if (pos) pos.classList.add('visible');
+    document.getElementById(posId)?.classList.add('visible');
   };
   reader.readAsDataURL(file);
 }
-
 function updatePosPreview(previewId, oxId, oyId) {
   const img = document.getElementById(previewId);
-  if (!img) return;
-  const ox = document.getElementById(oxId).value;
-  const oy = document.getElementById(oyId).value;
-  img.style.objectPosition = `${ox}% ${oy}%`;
+  if (img) img.style.objectPosition = `${document.getElementById(oxId).value}% ${document.getElementById(oyId).value}%`;
 }
-
 function updateRatingPreview() {
   const v = document.getElementById('f-rating').value;
   document.getElementById('rating-preview').textContent = v ? v+'/10' : '—';
@@ -568,227 +618,179 @@ function updateEditRatingPreview() {
   const v = document.getElementById('e-rating').value;
   document.getElementById('e-rating-preview').textContent = v ? v+'/10' : '—';
 }
-
-function getImgData(inputId) {
+function getFileDataUrl(inputId) {
   return new Promise(resolve => {
-    const input = document.getElementById(inputId);
-    const file = input.files[0];
+    const file = document.getElementById(inputId).files[0];
     if (!file) { resolve(null); return; }
-    const reader = new FileReader();
-    reader.onload = e => resolve(e.target.result);
-    reader.readAsDataURL(file);
+    const r = new FileReader();
+    r.onload = e => resolve(e.target.result);
+    r.readAsDataURL(file);
   });
 }
 
-// ── SUBMIT NEW ──
+// ══════════════════════════════════════════════════════════
+//  SUBMIT NEW REVIEW
+// ══════════════════════════════════════════════════════════
 async function submitReview() {
-  const name = document.getElementById('f-name').value.trim();
+  if (!idToken) { showToast('Not signed in'); return; }
+  const name   = document.getElementById('f-name').value.trim();
   const rating = parseFloat(document.getElementById('f-rating').value);
   const review = document.getElementById('f-review').value.trim();
-  const date = document.getElementById('f-date').value;
-  if (!name) { showToast('Add a noodle name!'); return; }
+  const date   = document.getElementById('f-date').value;
+  if (!name)                              { showToast('Add a noodle name!');   return; }
   if (isNaN(rating)||rating<0||rating>10) { showToast('Rating must be 0–10'); return; }
-  if (!date) { showToast('Pick a date!'); return; }
+  if (!date)                              { showToast('Pick a date!');         return; }
 
-  const img1 = await getImgData('f-img1') || '';
-  const img2 = await getImgData('f-img2') || '';
-  const ox1 = parseInt(document.getElementById('f-ox1').value)||50;
-  const oy1 = parseInt(document.getElementById('f-oy1').value)||50;
-  const ox2 = parseInt(document.getElementById('f-ox2').value)||50;
-  const oy2 = parseInt(document.getElementById('f-oy2').value)||50;
-
-  reviews.unshift({ id: Date.now(), name, rating, review, date, img1, img2, ox1, oy1, ox2, oy2 });
-  saveReviews();
-  showToast('Review added! 🍜');
-  renderAdminList();
-
-  // reset
-  ['f-name','f-rating','f-review'].forEach(id => document.getElementById(id).value='');
-  ['f-img1','f-img2'].forEach(id => document.getElementById(id).value='');
-  ['prev1','prev2'].forEach(id => { document.getElementById(id).style.display='none'; });
-  ['ph1','ph2'].forEach(id => { document.getElementById(id).style.display=''; });
-  ['pos1','pos2'].forEach(id => { document.getElementById(id).classList.remove('visible'); });
-  ['f-ox1','f-oy1','f-ox2','f-oy2'].forEach(id => { document.getElementById(id).value=50; });
-  document.getElementById('rating-preview').textContent='—';
-  document.getElementById('f-date').valueAsDate = new Date();
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true; btn.textContent = 'SAVING…';
+  try {
+    const id = genId();
+    const ox1 = +document.getElementById('f-ox1').value||50, oy1 = +document.getElementById('f-oy1').value||50;
+    const ox2 = +document.getElementById('f-ox2').value||50, oy2 = +document.getElementById('f-oy2').value||50;
+    const [d1, d2] = await Promise.all([getFileDataUrl('f-img1'), getFileDataUrl('f-img2')]);
+    let img1url='', img2url='', up=0; const tot=(d1?1:0)+(d2?1:0);
+    if (d1) {
+      img1url = await uploadImage(d1, p => setProgress('upload-progress-bar-add','upload-progress-add',(up+p)/Math.max(tot,1)));
+      up++;
+    }
+    if (d2) {
+      img2url = await uploadImage(d2, p => setProgress('upload-progress-bar-add','upload-progress-add',(up+p)/Math.max(tot,1)));
+    }
+    setProgress('upload-progress-bar-add','upload-progress-add',0);
+    const rec = { name, rating, review, date, ox1, oy1, ox2, oy2, img1url, img2url };
+    await fsSet('reviews', id, rec);
+    rec._id = id; reviews.unshift(rec);
+    showToast('Review added! 🍜'); renderAdminList();
+    ['f-name','f-rating','f-review'].forEach(x=>document.getElementById(x).value='');
+    ['f-img1','f-img2'].forEach(x=>document.getElementById(x).value='');
+    ['prev1','prev2'].forEach(x=>{document.getElementById(x).style.display='none';});
+    ['ph1','ph2'].forEach(x=>{document.getElementById(x).style.display='';});
+    ['pos1','pos2'].forEach(x=>{document.getElementById(x).classList.remove('visible');});
+    ['f-ox1','f-oy1','f-ox2','f-oy2'].forEach(x=>{document.getElementById(x).value=50;});
+    document.getElementById('rating-preview').textContent='—';
+    document.getElementById('f-date').valueAsDate=new Date();
+  } catch(e) { console.error(e); showToast('Error saving'); }
+  finally { btn.disabled=false; btn.textContent='ADD TO THE BOARD'; }
 }
 
-// ── DELETE ──
-function deleteReview(id) {
+// ══════════════════════════════════════════════════════════
+//  DELETE
+// ══════════════════════════════════════════════════════════
+async function deleteReview(id) {
   if (!confirm('Delete this review?')) return;
-  reviews = reviews.filter(r => r.id!==id);
-  saveReviews();
-  renderAdminList();
-  showToast('Deleted');
+  try {
+    await fsDelete('reviews', id);
+    reviews = reviews.filter(x=>x._id!==id);
+    renderAdminList(); renderReviews(); showToast('Deleted');
+  } catch(e) { console.error(e); showToast('Error deleting'); }
 }
 
-// ── EDIT MODAL ──
+// ══════════════════════════════════════════════════════════
+//  EDIT MODAL
+// ══════════════════════════════════════════════════════════
 function openEditModal(id) {
-  const r = reviews.find(x => x.id===id);
-  if (!r) return;
-  document.getElementById('e-id').value = id;
-  document.getElementById('e-name').value = r.name;
-  document.getElementById('e-rating').value = r.rating;
-  document.getElementById('e-date').value = r.date;
-  document.getElementById('e-review').value = r.review||'';
-  document.getElementById('e-rating-preview').textContent = r.rating+'/10';
-
-  // reset new image fields
-  ['e-img1','e-img2'].forEach(id => document.getElementById(id).value='');
-  ['ep1','ep2'].forEach(id => { document.getElementById(id).style.display='none'; });
-  ['eph1','eph2'].forEach(id => { document.getElementById(id).style.display=''; });
-  ['epos1','epos2'].forEach(id => { document.getElementById(id).classList.remove('visible'); });
-
-  // Show existing image position sliders if images exist
-  let existHTML = '';
-  if (r.img1 || r.img2) {
-    existHTML = '<label style="font-size:10px;letter-spacing:1px;color:var(--gold);text-transform:uppercase;display:block;margin-bottom:8px;">Adjust existing photo position</label>';
-    if (r.img1) {
-      existHTML += `
-        <div style="margin-bottom:12px;">
-          <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">Photo 1</div>
-          <div class="pos-row"><span>↔</span><input type="range" id="ex-ox1" min="0" max="100" value="${r.ox1||50}" oninput="liveUpdatePos(${id},1)"/></div>
-          <div class="pos-row"><span>↕</span><input type="range" id="ex-oy1" min="0" max="100" value="${r.oy1||50}" oninput="liveUpdatePos(${id},1)"/></div>
-        </div>`;
-    }
-    if (r.img2) {
-      existHTML += `
-        <div>
-          <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">Photo 2</div>
-          <div class="pos-row"><span>↔</span><input type="range" id="ex-ox2" min="0" max="100" value="${r.ox2||50}" oninput="liveUpdatePos(${id},2)"/></div>
-          <div class="pos-row"><span>↕</span><input type="range" id="ex-oy2" min="0" max="100" value="${r.oy2||50}" oninput="liveUpdatePos(${id},2)"/></div>
-        </div>`;
-    }
+  const r = reviews.find(x=>x._id===id); if (!r) return;
+  document.getElementById('e-id').value=id;
+  document.getElementById('e-name').value=r.name;
+  document.getElementById('e-rating').value=r.rating;
+  document.getElementById('e-date').value=r.date;
+  document.getElementById('e-review').value=r.review||'';
+  document.getElementById('e-rating-preview').textContent=r.rating+'/10';
+  ['e-img1','e-img2'].forEach(x=>document.getElementById(x).value='');
+  ['ep1','ep2'].forEach(x=>{document.getElementById(x).style.display='none';});
+  ['eph1','eph2'].forEach(x=>{document.getElementById(x).style.display='';});
+  ['epos1','epos2'].forEach(x=>{document.getElementById(x).classList.remove('visible');});
+  let ex='';
+  if (r.img1url||r.img2url) {
+    ex='<label style="font-size:10px;letter-spacing:1px;color:var(--gold);text-transform:uppercase;display:block;margin-bottom:8px;">Adjust existing photo position</label>';
+    if (r.img1url) ex+=`<div style="margin-bottom:12px;"><div style="font-size:11px;color:var(--muted);margin-bottom:6px;">Photo 1</div><div class="pos-row"><span>↔</span><input type="range" id="ex-ox1" min="0" max="100" value="${r.ox1||50}" oninput="liveUpdatePos('${id}',1)"/></div><div class="pos-row"><span>↕</span><input type="range" id="ex-oy1" min="0" max="100" value="${r.oy1||50}" oninput="liveUpdatePos('${id}',1)"/></div></div>`;
+    if (r.img2url) ex+=`<div><div style="font-size:11px;color:var(--muted);margin-bottom:6px;">Photo 2</div><div class="pos-row"><span>↔</span><input type="range" id="ex-ox2" min="0" max="100" value="${r.ox2||50}" oninput="liveUpdatePos('${id}',2)"/></div><div class="pos-row"><span>↕</span><input type="range" id="ex-oy2" min="0" max="100" value="${r.oy2||50}" oninput="liveUpdatePos('${id}',2)"/></div></div>`;
   }
-  document.getElementById('existing-pos-wrap').innerHTML = existHTML;
-
+  document.getElementById('existing-pos-wrap').innerHTML=ex;
   document.getElementById('edit-modal').classList.add('open');
 }
-
 function liveUpdatePos(id, slot) {
-  // just update in memory for preview — saved on save
-  const ox = parseInt(document.getElementById(`ex-ox${slot}`).value)||50;
-  const oy = parseInt(document.getElementById(`ex-oy${slot}`).value)||50;
-  // live update the card if visible
-  const card = document.getElementById('card-'+id);
-  if (card) {
-    const imgs = card.querySelectorAll('.card-img-wrap img');
-    if (imgs[slot-1]) imgs[slot-1].style.objectPosition = `${ox}% ${oy}%`;
-  }
+  const ox=+document.getElementById(`ex-ox${slot}`).value||50, oy=+document.getElementById(`ex-oy${slot}`).value||50;
+  const card=document.getElementById('card-'+id);
+  if (card) { const imgs=card.querySelectorAll('.card-img-wrap img'); if(imgs[slot-1]) imgs[slot-1].style.objectPosition=`${ox}% ${oy}%`; }
 }
-
-function closeEditModal() {
-  document.getElementById('edit-modal').classList.remove('open');
-}
+function closeEditModal() { document.getElementById('edit-modal').classList.remove('open'); }
 
 async function saveEdit() {
-  const id = parseInt(document.getElementById('e-id').value);
-  const idx = reviews.findIndex(r => r.id===id);
-  if (idx===-1) return;
-
-  const name = document.getElementById('e-name').value.trim();
-  const rating = parseFloat(document.getElementById('e-rating').value);
-  const date = document.getElementById('e-date').value;
-  const review = document.getElementById('e-review').value.trim();
-  if (!name) { showToast('Name required'); return; }
-  if (isNaN(rating)||rating<0||rating>10) { showToast('Rating 0–10'); return; }
-  if (!date) { showToast('Date required'); return; }
-
-  const newImg1 = await getImgData('e-img1');
-  const newImg2 = await getImgData('e-img2');
-
-  const r = reviews[idx];
-  r.name = name;
-  r.rating = rating;
-  r.date = date;
-  r.review = review;
-  if (newImg1) {
-    r.img1 = newImg1;
-    r.ox1 = parseInt(document.getElementById('e-ox1').value)||50;
-    r.oy1 = parseInt(document.getElementById('e-oy1').value)||50;
-  } else if (document.getElementById('ex-ox1')) {
-    r.ox1 = parseInt(document.getElementById('ex-ox1').value)||50;
-    r.oy1 = parseInt(document.getElementById('ex-oy1').value)||50;
-  }
-  if (newImg2) {
-    r.img2 = newImg2;
-    r.ox2 = parseInt(document.getElementById('e-ox2').value)||50;
-    r.oy2 = parseInt(document.getElementById('e-oy2').value)||50;
-  } else if (document.getElementById('ex-ox2')) {
-    r.ox2 = parseInt(document.getElementById('ex-ox2').value)||50;
-    r.oy2 = parseInt(document.getElementById('ex-oy2').value)||50;
-  }
-
-  saveReviews();
-  closeEditModal();
-  renderAdminList();
-  renderReviews();
-  showToast('Saved! ✓');
+  const id=document.getElementById('e-id').value;
+  const idx=reviews.findIndex(r=>r._id===id); if(idx===-1) return;
+  const name=document.getElementById('e-name').value.trim();
+  const rating=parseFloat(document.getElementById('e-rating').value);
+  const date=document.getElementById('e-date').value;
+  const review=document.getElementById('e-review').value.trim();
+  if(!name){showToast('Name required');return;}
+  if(isNaN(rating)||rating<0||rating>10){showToast('Rating 0–10');return;}
+  if(!date){showToast('Date required');return;}
+  const btn=document.getElementById('edit-save-btn');
+  btn.disabled=true; btn.textContent='SAVING…';
+  try {
+    const r=reviews[idx];
+    const [nd1,nd2]=await Promise.all([getFileDataUrl('e-img1'),getFileDataUrl('e-img2')]);
+    let img1url=r.img1url||'',img2url=r.img2url||'';
+    let ox1=r.ox1,oy1=r.oy1,ox2=r.ox2,oy2=r.oy2,up=0; const tot=(nd1?1:0)+(nd2?1:0);
+    if(nd1){
+      img1url=await uploadImage(nd1, p=>setProgress('upload-progress-bar-edit','upload-progress-edit',(up+p)/Math.max(tot,1)));
+      up++; ox1=+document.getElementById('e-ox1').value||50; oy1=+document.getElementById('e-oy1').value||50;
+    } else if(document.getElementById('ex-ox1')){ox1=+document.getElementById('ex-ox1').value||50;oy1=+document.getElementById('ex-oy1').value||50;}
+    if(nd2){
+      img2url=await uploadImage(nd2, p=>setProgress('upload-progress-bar-edit','upload-progress-edit',(up+p)/Math.max(tot,1)));
+      ox2=+document.getElementById('e-ox2').value||50; oy2=+document.getElementById('e-oy2').value||50;
+    } else if(document.getElementById('ex-ox2')){ox2=+document.getElementById('ex-ox2').value||50;oy2=+document.getElementById('ex-oy2').value||50;}
+    setProgress('upload-progress-bar-edit','upload-progress-edit',0);
+    const updated={name,rating,review,date,ox1,oy1,ox2,oy2,img1url,img2url};
+    await fsSet('reviews',id,updated);
+    Object.assign(r,updated);
+    closeEditModal(); renderAdminList(); renderReviews(); showToast('Saved! ✓');
+  } catch(e){console.error(e);showToast('Error saving');}
+  finally{btn.disabled=false;btn.textContent='SAVE CHANGES';}
 }
+document.getElementById('edit-modal').addEventListener('click',function(e){if(e.target===this)closeEditModal();});
 
-// close modal on overlay click
-document.getElementById('edit-modal').addEventListener('click', function(e) {
-  if (e.target === this) closeEditModal();
-});
-
-// ── ADMIN LIST ──
+// ══════════════════════════════════════════════════════════
+//  ADMIN LIST
+// ══════════════════════════════════════════════════════════
 function renderAdminList() {
-  if (!adminUnlocked) return;
-  const list = document.getElementById('admin-existing-list');
-  const arr = [...reviews].sort((a,b) => b.rating-a.rating);
-  list.innerHTML = arr.map(r => `
+  if (!adminUser) return;
+  const list=document.getElementById('admin-existing-list');
+  const arr=[...reviews].sort((a,b)=>b.rating-a.rating);
+  list.innerHTML=arr.map(r=>`
     <div class="admin-item">
       <div class="admin-item-name">${r.name} <span style="color:var(--muted);font-size:11px;">${formatDate(r.date)}</span></div>
       <div class="admin-item-score">${r.rating}/10</div>
-      <button class="admin-item-edit" onclick="openEditModal(${r.id})">EDIT</button>
-      <button class="admin-item-del" onclick="deleteReview(${r.id})">DELETE</button>
-    </div>
-  `).join('');
+      <button class="admin-item-edit" onclick="openEditModal('${r._id}')">EDIT</button>
+      <button class="admin-item-del" onclick="deleteReview('${r._id}')">DELETE</button>
+    </div>`).join('');
 }
 
-// ── POPUP ──
+// ══════════════════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════════════════
 let popupTimer;
-function showToast(msg, icon) {
-  // map common messages to friendly popup content
-  const popup = document.getElementById('save-popup');
-  const titleEl = document.getElementById('save-popup-title');
-  const subEl = document.getElementById('save-popup-sub');
-  const iconEl = document.getElementById('save-popup-icon');
-
-  if (msg.includes('added') || msg.includes('🍜')) {
-    iconEl.textContent = '🍜';
-    titleEl.textContent = 'REVIEW ADDED!';
-    subEl.textContent = 'Your new review is live on the board.';
-  } else if (msg.includes('Saved') || msg.includes('✓')) {
-    iconEl.textContent = '✅';
-    titleEl.textContent = 'CHANGES SAVED!';
-    subEl.textContent = 'Your review has been updated.';
-  } else if (msg.includes('Deleted')) {
-    iconEl.textContent = '🗑️';
-    titleEl.textContent = 'DELETED';
-    subEl.textContent = 'The review has been removed.';
-  } else if (msg.includes('Wrong')) {
-    iconEl.textContent = '🔒';
-    titleEl.textContent = 'WRONG PASSWORD';
-    subEl.textContent = 'Try again.';
-  } else {
-    iconEl.textContent = '⚠️';
-    titleEl.textContent = msg;
-    subEl.textContent = '';
-  }
-
-  popup.classList.add('show');
-  clearTimeout(popupTimer);
-  popupTimer = setTimeout(() => popup.classList.remove('show'), 2200);
+function showToast(msg) {
+  const ic=document.getElementById('save-popup-icon'),ti=document.getElementById('save-popup-title'),su=document.getElementById('save-popup-sub');
+  if(msg.includes('added')||msg.includes('🍜')){ic.textContent='🍜';ti.textContent='REVIEW ADDED!';su.textContent='Your new review is live on the board.';}
+  else if(msg.includes('Saved')||msg.includes('✓')){ic.textContent='✅';ti.textContent='CHANGES SAVED!';su.textContent='Your review has been updated.';}
+  else if(msg.includes('Deleted')){ic.textContent='🗑️';ti.textContent='DELETED';su.textContent='The review has been removed.';}
+  else if(msg.includes('authorized')){ic.textContent='🔒';ti.textContent='ACCESS DENIED';su.textContent='Wrong Google account.';}
+  else{ic.textContent='⚠️';ti.textContent=msg.toUpperCase();su.textContent='';}
+  const p=document.getElementById('save-popup');
+  p.classList.add('show'); clearTimeout(popupTimer);
+  popupTimer=setTimeout(()=>p.classList.remove('show'),2400);
 }
-// click overlay to dismiss early
-document.getElementById('save-popup').addEventListener('click', function() {
-  this.classList.remove('show');
-});
+document.getElementById('save-popup').addEventListener('click',function(){this.classList.remove('show');});
 
-// ── INIT ──
-loadReviews();
-renderReviews();
+// ══════════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════════
+(async()=>{
+  await loadReviews();
+  renderReviews();
+})();
 </script>
 </body>
 </html>
